@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    include: config
+
+  servlet:
+    multipart:
+      max-file-size: -1 #무제한
+      max-request-size: -1 #무제한
+
+mybatis:
+  mapper-locations: classpath*:mybatis/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
