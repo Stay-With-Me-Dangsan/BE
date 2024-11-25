@@ -1,0 +1,7 @@
+stay-with-me:
+  security:
+    configuration-enabled: true
+
+  auth:
+    jwt:
+      token-type: Bearer
