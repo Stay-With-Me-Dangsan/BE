@@ -1,13 +1,36 @@
 spring:
   profiles:
     include: config
+  config:
+    import: optional:file:.env[.properties]
 
   servlet:
     multipart:
       max-file-size: -1 #무제한
       max-request-size: -1 #무제한
 
+  datasource:
+    url: jdbc:postgresql://43.202.67.155:5432/stay_with_me
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
 mybatis:
-  mapper-locations: classpath*:mybatis/mapper/*.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  type-aliases-package: stay.with.me.api.house.model.dto
+  type-handlers-package: stay.with.me.spring.config.mybatis
   configuration:
     map-underscore-to-camel-case: true
+
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_IMAGE_BUCKET}
+    credentials:
+      access-key: ${S3_IMAGE_BUCKET_ACCESS_KEY}
+      secret-key: ${S3_IMAGE_BUCKET_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
