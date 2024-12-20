@@ -1,4 +1,4 @@
-package stay.with.me.api.house.model.dto;
+package stay.with.me.api.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
