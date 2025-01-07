@@ -25,7 +25,8 @@ mybatis:
 cloud:
   aws:
     s3:
-      bucket: ${S3_IMAGE_BUCKET}
+      image-bucket: ${S3_IMAGE_BUCKET}
+      file-bucket: ${S3_FILE_BUCKET}
     credentials:
       access-key: ${S3_IMAGE_BUCKET_ACCESS_KEY}
       secret-key: ${S3_IMAGE_BUCKET_SECRET_KEY}
