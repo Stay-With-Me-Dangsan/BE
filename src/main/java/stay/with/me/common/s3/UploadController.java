@@ -17,22 +17,41 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/upload")
 @RequiredArgsConstructor
-public class ImageUploadController {
+public class UploadController {
 
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    @Value("${cloud.aws.s3.image-bucket}")
+    private String imageBucket;
+
+    @Value("${cloud.aws.s3.file-bucket}")
+    private String fileBucket;
 
     @PostMapping("/image")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + "/test" +fileName;
+            String fileUrl = "https://" + imageBucket + "/test" +fileName;
             ObjectMetadata metadata= new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
+            amazonS3Client.putObject(imageBucket,fileName,file.getInputStream(),metadata);
+            return ResponseEntity.ok(fileUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/file")
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            String fileUrl = "https://" + fileBucket + "/test" +fileName;
+            ObjectMetadata metadata= new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+            amazonS3Client.putObject(fileBucket,fileName,file.getInputStream(),metadata);
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             e.printStackTrace();

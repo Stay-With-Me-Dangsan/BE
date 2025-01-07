@@ -2,6 +2,119 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="stay.with.me.api.house.model.dto.HouseDto">
+<mapper namespace="stay.with.me.api.model.mapper.HouseMapper">
+    <resultMap id="houseDetailResultMap" type="stay.with.me.api.model.dto.HouseDto">
+        <result property="houseDetailId" column="house_detail_id" />
+        <result property="houseMainId" column="house_main_id" />
+        <result property="houseDetailAddress" column="house_detail_address" />
+        <result property="houseDescription" column="house_description" />
+        <result property="housePhone" column="house_phone" />
+        <result property="propertyType" column="property_type" />
+        <result property="houseDeposit" column="house_deposit" />
+        <result property="houseRent" column="house_rent" />
+        <result property="houseKeyword" column="house_keyword" typeHandler="stay.with.me.spring.mybatis.StringArrayTypeHandler"/>
+        <result property="houseFeatures" column="house_features" typeHandler="stay.with.me.spring.mybatis.StringArrayTypeHandler"/>
+        <result property="shareStartDate" column="share_start_date" />
+        <result property="shareEndDate" column="share_end_date" />
+        <result property="coordinates" column="coordinates" typeHandler="stay.with.me.spring.mybatis.PGPointTypeHandler" />
+        <result property="createdBy" column="created_by" />
+    </resultMap>
 
+    <select id="getDetail" parameterType="stay.with.me.api.model.dto.HouseDto" resultMap="houseDetailResultMap">
+        SELECT *
+          FROM house_detail
+         WHERE house_detail_id = #{houseDetailId}
+    </select>
+
+    <select id="getDetails" parameterType="java.util.List">
+        SELECT house_detail_id
+          FROM house_detail
+         WHERE house_detail_id in
+        <foreach item="detail" index="index" collection="list" open="(" separator="," close=")">
+            #{detail.houseDetailId}
+        </foreach>
+    </select>
+
+    <update id="updateDetail">
+        UPDATE house_detail
+        SET
+        <if test="houseDetailAddress != null">
+            house_detail_address = #{houseDetailAddress},
+        </if>
+        <if test="houseDescription != null">
+            house_description = #{houseDescription},
+        </if>
+        <if test="housePhone != null">
+            house_phone = #{housePhone},
+        </if>
+        <if test="houseKeyword != null and houseKeyword.length > 0">
+            house_keyword = ARRAY[<foreach collection="houseKeyword" item="houseKeyword" separator=",">#{houseKeyword, jdbcType=VARCHAR}</foreach>],
+        </if>
+        <if test="houseFeatures != null and houseFeatures.length > 0">
+            house_features = ARRAY[<foreach collection="houseFeatures" item="houseFeatures" separator=",">#{houseFeatures, jdbcType=VARCHAR}</foreach>],
+        </if>
+        <if test="propertyType != null">
+            property_type = #{propertyType},
+        </if>
+        <if test="houseDeposit != null">
+            house_deposit = #{houseDeposit},
+        </if>
+        <if test="houseRent != null">
+            house_rent = #{houseRent},
+        </if>
+        <if test="shareStartDate != null">
+            share_start_date = #{shareStartDate}::date,
+        </if>
+        <if test="shareEndDate != null">
+            share_end_date = #{shareEndDate}::date,
+        </if>
+        <if test="coordinates != null">
+            coordinates = #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
+        </if>
+        WHERE house_detail_id = #{houseDetailId}
+    </update>
+
+    <insert id="createDetail" parameterType="stay.with.me.api.model.dto.HouseDto">
+        INSERT INTO house_detail
+        (
+            house_detail_id,
+            house_main_id,
+            house_detail_address,
+            house_description,
+            house_phone,
+            house_keyword,
+            house_features,
+            property_type,
+            house_deposit,
+            house_rent,
+            share_start_date,
+            share_end_date,
+            coordinates,
+            created_by,
+            created_at
+        )
+        VALUES
+        (
+            #{houseDetailId},
+            #{houseMainId},
+            #{houseDetailAddress},
+            #{houseDescription},
+            #{housePhone},
+            #{houseKeyword, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
+            #{houseFeatures, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
+            #{propertyType},
+            #{houseDeposit},
+            #{houseRent},
+            #{shareStartDate}::date,
+            #{shareEndDate}::date,
+            #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
+            #{createdBy},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <delete id="deleteDetail">
+        DELETE FROM house_detail
+              WHERE #{houseDetailId}
+    </delete>
 </mapper>
