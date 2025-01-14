@@ -13,24 +13,24 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories
 public class RedisConfig {
 	
-    @Value("${redis.host}")
-    private String host;
-    @Value("${redis.port}")
-    private int port;
-    @Value("${redis.password}")
-    private String password;
-
-    
-    
-    @Bean    
-    public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration();
-        redisConfiguration.setHostName(host);
-        redisConfiguration.setPort(port);
-        redisConfiguration.setPassword(password);
-        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisConfiguration);
-        return lettuceConnectionFactory;
-    }
+//    @Value("${redis.host}")
+//    private String host;
+//    @Value("${redis.port}")
+//    private int port;
+//    @Value("${redis.password}")
+//    private String password;
+//
+//
+//
+//    @Bean
+//    public RedisConnectionFactory redisConnectionFactory() {
+//        RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration();
+//        redisConfiguration.setHostName(host);
+//        redisConfiguration.setPort(port);
+//        redisConfiguration.setPassword(password);
+//        LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(redisConfiguration);
+//        return lettuceConnectionFactory;
+//    }
     
 //    // redis-cli 사용을 위한 설정
 //    @Bean
