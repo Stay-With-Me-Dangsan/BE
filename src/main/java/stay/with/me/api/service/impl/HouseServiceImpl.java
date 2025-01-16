@@ -2,7 +2,8 @@ package stay.with.me.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import stay.with.me.api.model.dto.HouseDto;
+import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseMainDto;
 import stay.with.me.api.model.mapper.HouseMapper;
 import stay.with.me.api.service.HouseService;
 
@@ -15,28 +16,33 @@ public class HouseServiceImpl implements HouseService {
     private final HouseMapper houseMapper;
 
     @Override
-    public List<HouseDto> getDetail(HouseDto param) {
-        return houseMapper.getDetail(param);
+    public HouseDetailDto getDetail(int houseDetailId) throws Exception {
+        return houseMapper.getDetail(houseDetailId);
     }
 
     @Override
-    public List<HouseDto> getDetails(List<HouseDto> params) {
+    public List<HouseDetailDto> getDetails(List<HouseDetailDto> params) throws Exception {
         return houseMapper.getDetails(params);
     }
 
     @Override
-    public void createDetail(HouseDto param) {
-        houseMapper.createDetail(param);
+    public int createMain(HouseMainDto param) throws Exception {
+        //TODO houseMainId 코드조합해시
+        return houseMapper.createMain(param);
     }
 
     @Override
-    public void updateDetail(HouseDto param) {
-        houseMapper.updateDetail(param);
+    public int createDetail(HouseDetailDto param) throws Exception {
+        return houseMapper.createDetail(param);
     }
 
     @Override
-    public void deleteDetail(HouseDto param) {
-        houseMapper.deleteDetail(param);
+    public int updateDetail(HouseDetailDto param) throws Exception {
+        return houseMapper.updateDetail(param);
     }
 
+    @Override
+    public boolean deleteDetail(int houseDetailId) throws Exception {
+        return houseMapper.deleteDetail(houseDetailId);
+    }
 }

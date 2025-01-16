@@ -4,15 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseDto {
+public class HouseMainDto {
 
-    private int status;
-    private String message;
-    private Map<String, Object> data;
+    private int houseMainId;
+    private String houseAddress;
+    private int houseZonecode;
+    private String houseName;
 
 }

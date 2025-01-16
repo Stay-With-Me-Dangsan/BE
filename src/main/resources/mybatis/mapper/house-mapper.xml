@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="stay.with.me.api.model.mapper.HouseMapper">
-    <resultMap id="houseDetailResultMap" type="stay.with.me.api.model.dto.HouseDto">
+    <resultMap id="houseDetailResultMap" type="stay.with.me.api.model.dto.HouseDetailDto">
         <result property="houseDetailId" column="house_detail_id" />
         <result property="houseMainId" column="house_main_id" />
         <result property="houseDetailAddress" column="house_detail_address" />
@@ -20,7 +20,7 @@
         <result property="createdBy" column="created_by" />
     </resultMap>
 
-    <select id="getDetail" parameterType="stay.with.me.api.model.dto.HouseDto" resultMap="houseDetailResultMap">
+    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">
         SELECT *
           FROM house_detail
          WHERE house_detail_id = #{houseDetailId}
@@ -35,49 +35,66 @@
         </foreach>
     </select>
 
-    <update id="updateDetail">
+    <update id="updateDetail" useGeneratedKeys="true" keyProperty="houseDetailId">
         UPDATE house_detail
-        SET
-        <if test="houseDetailAddress != null">
-            house_detail_address = #{houseDetailAddress},
-        </if>
-        <if test="houseDescription != null">
-            house_description = #{houseDescription},
-        </if>
-        <if test="housePhone != null">
-            house_phone = #{housePhone},
-        </if>
-        <if test="houseKeyword != null and houseKeyword.length > 0">
-            house_keyword = ARRAY[<foreach collection="houseKeyword" item="houseKeyword" separator=",">#{houseKeyword, jdbcType=VARCHAR}</foreach>],
-        </if>
-        <if test="houseFeatures != null and houseFeatures.length > 0">
-            house_features = ARRAY[<foreach collection="houseFeatures" item="houseFeatures" separator=",">#{houseFeatures, jdbcType=VARCHAR}</foreach>],
-        </if>
-        <if test="propertyType != null">
-            property_type = #{propertyType},
-        </if>
-        <if test="houseDeposit != null">
-            house_deposit = #{houseDeposit},
-        </if>
-        <if test="houseRent != null">
-            house_rent = #{houseRent},
-        </if>
-        <if test="shareStartDate != null">
-            share_start_date = #{shareStartDate}::date,
-        </if>
-        <if test="shareEndDate != null">
-            share_end_date = #{shareEndDate}::date,
-        </if>
-        <if test="coordinates != null">
-            coordinates = #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
-        </if>
+        <set>
+            <if test="houseDetailAddress != null">
+                house_detail_address = #{houseDetailAddress},
+            </if>
+            <if test="houseDescription != null">
+                house_description = #{houseDescription},
+            </if>
+            <if test="housePhone != null">
+                house_phone = #{housePhone},
+            </if>
+            <if test="houseKeyword != null and houseKeyword.length > 0">
+                house_keyword = ARRAY[<foreach collection="houseKeyword" item="houseKeyword" separator=",">#{houseKeyword, jdbcType=VARCHAR}</foreach>],
+            </if>
+            <if test="houseFeatures != null and houseFeatures.length > 0">
+                house_features = ARRAY[<foreach collection="houseFeatures" item="houseFeatures" separator=",">#{houseFeatures, jdbcType=VARCHAR}</foreach>],
+            </if>
+            <if test="propertyType != null">
+                property_type = #{propertyType},
+            </if>
+            <if test="houseDeposit != null and houseDeposit != 0">
+                house_deposit = #{houseDeposit},
+            </if>
+            <if test="houseRent != null and houseRent != 0">
+                house_rent = #{houseRent},
+            </if>
+            <if test="shareStartDate != null">
+                share_start_date = #{shareStartDate}::date,
+            </if>
+            <if test="shareEndDate != null">
+                share_end_date = #{shareEndDate}::date,
+            </if>
+            <if test="coordinates != null">
+                coordinates = #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler}
+            </if>
+        </set>
         WHERE house_detail_id = #{houseDetailId}
     </update>
 
-    <insert id="createDetail" parameterType="stay.with.me.api.model.dto.HouseDto">
+    <insert id="createMain" parameterType="stay.with.me.api.model.dto.HouseMainDto">
+        INSERT INTO house_main
+        (
+            house_main_id,
+            house_address,
+            house_zonecode,
+            house_name
+        )
+        values
+        (
+            #{houseMainId},
+            #{houseAddress},
+            #{houseZonecode},
+            #{houseName}
+        )
+    </insert>
+
+    <insert id="createDetail" parameterType="stay.with.me.api.model.dto.HouseDetailDto">
         INSERT INTO house_detail
         (
-            house_detail_id,
             house_main_id,
             house_detail_address,
             house_description,
@@ -95,7 +112,6 @@
         )
         VALUES
         (
-            #{houseDetailId},
             #{houseMainId},
             #{houseDetailAddress},
             #{houseDescription},
@@ -113,8 +129,8 @@
         )
     </insert>
 
-    <delete id="deleteDetail">
+    <delete id="deleteDetail" parameterType="int">
         DELETE FROM house_detail
-              WHERE #{houseDetailId}
+              WHERE house_detail_id = #{houseDetailId}
     </delete>
 </mapper>

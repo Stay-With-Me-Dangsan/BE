@@ -1,20 +1,23 @@
 package stay.with.me.api.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import stay.with.me.api.model.dto.HouseDto;
+import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.util.List;
 
 @Mapper
 public interface HouseMapper {
 
-    List<HouseDto> getDetail(HouseDto param);
+    HouseDetailDto getDetail(int houseDetailId);
 
-    List<HouseDto> getDetails(List<HouseDto> params);
+    List<HouseDetailDto> getDetails(List<HouseDetailDto> params);
 
-    void createDetail(HouseDto param);
+    int createMain(HouseMainDto param);
 
-    void updateDetail(HouseDto param);
+    int createDetail(HouseDetailDto param);
 
-    void deleteDetail(HouseDto param);
+    int updateDetail(HouseDetailDto param);
+
+    boolean deleteDetail(int houseDetailId);
 }
