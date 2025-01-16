@@ -1,19 +1,21 @@
 package stay.with.me.api.service;
 
-import stay.with.me.api.model.dto.HouseDto;
+import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.util.List;
 
 public interface HouseService {
 
-    List<HouseDto> getDetail(HouseDto param);
+    HouseDetailDto getDetail(int houseDetailId) throws Exception;
 
-    List<HouseDto> getDetails(List<HouseDto> params);
+    List<HouseDetailDto> getDetails(List<HouseDetailDto> params) throws Exception;
 
-    void createDetail(HouseDto param);
+    int createMain(HouseMainDto param) throws Exception;
 
-    void updateDetail(HouseDto param);
+    int createDetail(HouseDetailDto param) throws Exception;
 
-    void deleteDetail(HouseDto param);
+    int updateDetail(HouseDetailDto param) throws Exception;
 
+    boolean deleteDetail(int houseDetailId) throws Exception;
 }

@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HouseDto {
+public class HouseDetailDto {
 
     private int houseMainId;
     private int houseDetailId;
