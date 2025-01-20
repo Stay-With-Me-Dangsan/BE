@@ -20,19 +20,22 @@
         <result property="createdBy" column="created_by" />
     </resultMap>
 
-    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">
+    <select id="getMain" parameterType="int" resultType="stay.with.me.api.model.dto.HouseMainDto">
         SELECT *
-          FROM house_detail
-         WHERE house_detail_id = #{houseDetailId}
+        FROM house_main
+        WHERE house_main_id = #{houseMainId}
     </select>
 
-    <select id="getDetails" parameterType="java.util.List">
-        SELECT house_detail_id
-          FROM house_detail
-         WHERE house_detail_id in
-        <foreach item="detail" index="index" collection="list" open="(" separator="," close=")">
-            #{detail.houseDetailId}
-        </foreach>
+    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">
+        SELECT *
+        FROM house_detail
+        WHERE house_detail_id = #{houseDetailId}
+    </select>
+
+    <select id="getDetails" parameterType="int" resultMap="houseDetailResultMap">
+        SELECT *
+        FROM house_detail
+        WHERE coordinates <![CDATA[ <@ ]]> BOX(POINT(#{minX}, #{minY}), POINT(#{maxX}, #{maxY}))
     </select>
 
     <update id="updateDetail" useGeneratedKeys="true" keyProperty="houseDetailId">
@@ -78,59 +81,59 @@
     <insert id="createMain" parameterType="stay.with.me.api.model.dto.HouseMainDto">
         INSERT INTO house_main
         (
-            house_main_id,
-            house_address,
-            house_zonecode,
-            house_name
+        house_main_id,
+        house_address,
+        house_zonecode,
+        house_name
         )
         values
         (
-            #{houseMainId},
-            #{houseAddress},
-            #{houseZonecode},
-            #{houseName}
+        #{houseMainId},
+        #{houseAddress},
+        #{houseZonecode},
+        #{houseName}
         )
     </insert>
 
     <insert id="createDetail" parameterType="stay.with.me.api.model.dto.HouseDetailDto">
         INSERT INTO house_detail
         (
-            house_main_id,
-            house_detail_address,
-            house_description,
-            house_phone,
-            house_keyword,
-            house_features,
-            property_type,
-            house_deposit,
-            house_rent,
-            share_start_date,
-            share_end_date,
-            coordinates,
-            created_by,
-            created_at
+        house_main_id,
+        house_detail_address,
+        house_description,
+        house_phone,
+        house_keyword,
+        house_features,
+        property_type,
+        house_deposit,
+        house_rent,
+        share_start_date,
+        share_end_date,
+        coordinates,
+        created_by,
+        created_at
         )
         VALUES
         (
-            #{houseMainId},
-            #{houseDetailAddress},
-            #{houseDescription},
-            #{housePhone},
-            #{houseKeyword, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
-            #{houseFeatures, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
-            #{propertyType},
-            #{houseDeposit},
-            #{houseRent},
-            #{shareStartDate}::date,
-            #{shareEndDate}::date,
-            #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
-            #{createdBy},
-            CURRENT_TIMESTAMP
+        #{houseMainId},
+        #{houseDetailAddress},
+        #{houseDescription},
+        #{housePhone},
+        #{houseKeyword, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
+        #{houseFeatures, jdbcType=ARRAY, typeHandler=stay.with.me.spring.mybatis.StringArrayTypeHandler},
+        #{propertyType},
+        #{houseDeposit},
+        #{houseRent},
+        #{shareStartDate}::date,
+        #{shareEndDate}::date,
+        #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
+        #{createdBy},
+        CURRENT_TIMESTAMP
         )
     </insert>
 
     <delete id="deleteDetail" parameterType="int">
         DELETE FROM house_detail
-              WHERE house_detail_id = #{houseDetailId}
+        WHERE house_detail_id = #{houseDetailId}
     </delete>
 </mapper>

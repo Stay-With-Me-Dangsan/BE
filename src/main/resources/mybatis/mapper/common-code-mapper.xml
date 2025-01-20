@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.api.model.mapper.CommonCodeMapper">
+    <select id="get" resultType="stay.with.me.api.model.dto.CommonCodeDto">
+        SELECT *
+          FROM common_code
+         WHERE 1 = 1
+        <if test="groupId != null and groupId.trim() != ''">
+           AND common_code_group_id = #{groupId}
+        </if>
+        <if test="key != null and key.trim() != ''">
+           AND common_code_key = #{key}
+        </if>
+    </select>
+
+    <insert id="create" parameterType="stay.with.me.api.model.dto.CommonCodeDto">
+        INSERT INTO common_code
+        (
+        common_code_group_id,
+        common_code_key,
+        common_code_name,
+        common_code_description
+        )
+        values
+        (
+        #{commonCodeGroupId},
+        #{commonCodeKey},
+        #{commonCodeName},
+        #{commonCodeDescription}
+        )
+    </insert>
+
+    <update id="update" useGeneratedKeys="true" keyProperty="commonCodeId">
+        UPDATE common_code
+        <set>
+            <if test="commonCodeGroupId != null">
+                common_code_group_id = #{commonCodeGroupId},
+            </if>
+            <if test="commonCodeKey != null">
+                common_code_key = #{commonCodeKey},
+            </if>
+            <if test="commonCodeName != null">
+                common_code_name = #{commonCodeName},
+            </if>
+            <if test="commonCodeDescription != null">
+                common_code_description = #{commonCodeDescription},
+            </if>
+        </set>
+        WHERE common_code_id = #{commonCodeId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM common_code
+        WHERE common_code_id = #{commonCodeId}
+    </delete>
+</mapper>
