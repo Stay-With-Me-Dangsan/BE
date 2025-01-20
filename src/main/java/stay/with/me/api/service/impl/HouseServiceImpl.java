@@ -16,13 +16,18 @@ public class HouseServiceImpl implements HouseService {
     private final HouseMapper houseMapper;
 
     @Override
+    public HouseMainDto getMain(int houseMainId) throws Exception {
+        return houseMapper.getMain(houseMainId);
+    }
+
+    @Override
     public HouseDetailDto getDetail(int houseDetailId) throws Exception {
         return houseMapper.getDetail(houseDetailId);
     }
 
     @Override
-    public List<HouseDetailDto> getDetails(List<HouseDetailDto> params) throws Exception {
-        return houseMapper.getDetails(params);
+    public List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception {
+        return houseMapper.getDetails(minX, minY, maxX, maxY);
     }
 
     @Override

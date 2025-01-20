@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface HouseService {
 
+    HouseMainDto getMain(int houseMainId) throws Exception;
+
     HouseDetailDto getDetail(int houseDetailId) throws Exception;
 
-    List<HouseDetailDto> getDetails(List<HouseDetailDto> params) throws Exception;
+    List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception;
 
     int createMain(HouseMainDto param) throws Exception;
 

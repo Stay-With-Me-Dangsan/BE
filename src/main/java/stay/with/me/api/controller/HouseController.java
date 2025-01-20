@@ -11,6 +11,7 @@ import stay.with.me.api.service.HouseService;
 import stay.with.me.common.util.ResponseUtil;
 import stay.with.me.common.ResponseStatus;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,6 +21,21 @@ public class HouseController {
 
     private final HouseService houseService;
 
+    @GetMapping("/getMain")
+    public ResponseEntity<ResponseDto> getMain(@RequestParam("houseMainId") int houseMainId) {
+        try {
+            HouseMainDto dto = houseService.getMain(houseMainId);
+
+            if(dto == null) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", dto);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/getDetail")
     public ResponseEntity<ResponseDto> getDetail(@RequestParam("houseDetailId") int houseDetailId) {
         try {
@@ -28,17 +44,27 @@ public class HouseController {
             if(dto == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
             }
-            Map<String, Object> data = Map.of("data", dto);
+            Map<String, Object> data = Map.of("result", dto);
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    @PostMapping("/getDetails")
-//    public List<HouseDto> getDetails(@RequestBody List<HouseDto> params) {
-//        return houseService.getDetails(params);
-//    }
+    @GetMapping("/getDetails")
+    public ResponseEntity<ResponseDto> getDetails(@RequestParam("minX") int minX, @RequestParam("minY") int minY, @RequestParam("maxX") int maxX, @RequestParam("maxY") int maxY) {
+        try {
+            List<HouseDetailDto> list = houseService.getDetails(minX, minY, maxX, maxY);
+
+            if(list.size() < 1) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", list);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/createMain")
     public ResponseEntity<ResponseDto> createMain(@RequestBody HouseMainDto param) {

@@ -9,9 +9,11 @@ import java.util.List;
 @Mapper
 public interface HouseMapper {
 
+    HouseMainDto getMain(int houseMainId);
+
     HouseDetailDto getDetail(int houseDetailId);
 
-    List<HouseDetailDto> getDetails(List<HouseDetailDto> params);
+    List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY);
 
     int createMain(HouseMainDto param);
 
