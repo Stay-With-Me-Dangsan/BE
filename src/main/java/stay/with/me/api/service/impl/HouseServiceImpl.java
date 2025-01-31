@@ -8,6 +8,7 @@ import stay.with.me.api.model.mapper.HouseMapper;
 import stay.with.me.api.service.HouseService;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,11 @@ public class HouseServiceImpl implements HouseService {
     @Override
     public List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception {
         return houseMapper.getDetails(minX, minY, maxX, maxY);
+    }
+
+    @Override
+    public List<Integer> getDetailsByCondition(Map<String, Object> param) throws Exception {
+        return houseMapper.getDetailsByCondition(param);
     }
 
     @Override

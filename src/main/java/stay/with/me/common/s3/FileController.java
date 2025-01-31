@@ -15,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/file")
 @RequiredArgsConstructor
-public class UploadController {
+public class FileController {
 
     private final AmazonS3Client amazonS3Client;
 
@@ -27,31 +27,18 @@ public class UploadController {
     @Value("${cloud.aws.s3.file-bucket}")
     private String fileBucket;
 
-    @PostMapping("/image")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file, @RequestParam("type") String type) {
         try {
+            String bucket = "";
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + imageBucket + "/test" +fileName;
             ObjectMetadata metadata= new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(imageBucket,fileName,file.getInputStream(),metadata);
-            return ResponseEntity.ok(fileUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping("/file")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + fileBucket + "/test" +fileName;
-            ObjectMetadata metadata= new ObjectMetadata();
-            metadata.setContentType(file.getContentType());
-            metadata.setContentLength(file.getSize());
-            amazonS3Client.putObject(fileBucket,fileName,file.getInputStream(),metadata);
+            if("image".equals(type)) bucket = imageBucket;
+            else if("file".equals(type)) bucket = fileBucket;
+            String fileUrl = "https://" + bucket + fileName;
+            amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             e.printStackTrace();

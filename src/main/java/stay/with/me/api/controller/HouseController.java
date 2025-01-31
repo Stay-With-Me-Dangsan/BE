@@ -66,6 +66,21 @@ public class HouseController {
         }
     }
 
+    @GetMapping("/getDetailsByCondition")
+    public ResponseEntity<ResponseDto> getDetailsByCondition(@RequestParam Map<String, Object> param) {
+        try {
+            List<Integer> list = houseService.getDetailsByCondition(param);
+
+            if(list.size() < 1) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", list);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/createMain")
     public ResponseEntity<ResponseDto> createMain(@RequestBody HouseMainDto param) {
         try {

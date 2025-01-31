@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.postgresql.geometric.PGpoint;
 
-import java.util.Date;
+import java.math.BigInteger;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -20,10 +21,10 @@ public class HouseDetailDto {
     private String[] houseKeyword;
     private String[] houseFeatures;
     private String propertyType;
-    private int houseDeposit;
-    private int houseRent;
-    private Date shareStartDate;
-    private Date shareEndDate;
+    private BigInteger houseDeposit;
+    private BigInteger houseRent;
+    private LocalDate shareStartDate;
+    private LocalDate shareEndDate;
     private PGpoint coordinates;
     private String createdBy;
 

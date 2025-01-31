@@ -10,17 +10,23 @@ spring:
       max-request-size: -1 #무제한
 
   datasource:
-    url: jdbc:postgresql://43.202.67.155:5432/stay_with_me
+    url: jdbc:log4jdbc:postgresql://43.202.67.155:5432/stay_with_me?options=-c%20TimeZone=Asia/Seoul
     username: ${POSTGRES_USERNAME}
     password: ${POSTGRES_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
 
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
   type-aliases-package: stay.with.me.api.house.model.dto
   type-handlers-package: stay.with.me.spring.config.mybatis
   configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+logging:
+  level:
+    org.mybatis: DEBUG
+    org.apache.ibatis: DEBUG
 
 cloud:
   aws:

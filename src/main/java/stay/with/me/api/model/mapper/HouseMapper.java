@@ -5,6 +5,7 @@ import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface HouseMapper {
@@ -14,6 +15,8 @@ public interface HouseMapper {
     HouseDetailDto getDetail(int houseDetailId);
 
     List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY);
+
+    List<Integer> getDetailsByCondition(Map<String, Object> param);
 
     int createMain(HouseMainDto param);
 
