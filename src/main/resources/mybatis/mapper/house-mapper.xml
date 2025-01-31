@@ -38,6 +38,43 @@
         WHERE coordinates <![CDATA[ <@ ]]> BOX(POINT(#{minX}, #{minY}), POINT(#{maxX}, #{maxY}))
     </select>
 
+    <select id="getDetailsByCondition" resultType="java.lang.Integer">
+        SELECT house_detail_id
+          FROM house_detail
+         WHERE 1 = 1
+        <if test="house_rent_min != null">
+            AND house_rent <![CDATA[ >= ]]> #{house_rent_min}::bigint
+        </if>
+        <if test="house_rent_max != null">
+            AND house_rent <![CDATA[ <= ]]> #{house_rent_max}::bigint
+        </if>
+        <if test="property_type != null and property_type.size > 0">
+           AND property_type in
+            <foreach item="prop" collection="property_type" open="(" separator="," close=")">
+                ${prop}
+            </foreach>
+        </if>
+        <if test="house_deposit_min != null">
+            AND house_deposit <![CDATA[ >= ]]> #{house_deposit_min}::bigint
+        </if>
+        <if test="house_deposit_max != null">
+            AND house_deposit <![CDATA[ <= ]]> #{house_deposit_max}::bigint
+        </if>
+        <if test="share_start_date != null">
+           AND share_start_date <![CDATA[ >= ]]> CAST(#{share_start_date} AS DATE)
+        </if>
+        <if test="share_end_date != null">
+           AND share_end_date <![CDATA[ <= ]]> CAST(#{share_end_date} AS DATE)
+        </if>
+        <if test="house_features != null and house_features.size > 0">
+           AND house_features <![CDATA[ && ]]> ARRAY[
+            <foreach item="feat" collection="house_features" separator=",">
+                ${feat}
+            </foreach>
+           ]::varchar[]
+        </if>
+    </select>
+
     <update id="updateDetail" useGeneratedKeys="true" keyProperty="houseDetailId">
         UPDATE house_detail
         <set>

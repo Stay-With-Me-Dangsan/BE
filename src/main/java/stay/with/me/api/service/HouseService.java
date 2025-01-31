@@ -4,6 +4,7 @@ import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HouseService {
 
@@ -12,6 +13,8 @@ public interface HouseService {
     HouseDetailDto getDetail(int houseDetailId) throws Exception;
 
     List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception;
+
+    List<Integer> getDetailsByCondition(Map<String, Object> param) throws Exception;
 
     int createMain(HouseMainDto param) throws Exception;
 
