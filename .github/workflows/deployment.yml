@@ -33,10 +33,20 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build || (echo "Gradle build failed!" && exit 1)
 
+      # Debugging
+      - name: Check Build Artifacts
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Listing workspace directory:"
+          ls -alR ${{ github.workspace }}
+          echo "Listing build/libs directory:"
+          ls -alR ${{ github.workspace }}/build/libs || echo "No files found in build/libs"
+
       # 5. JAR 파일 EC2로 복사
       - name: Upload JAR to EC2
         run: |
-          scp -i ${{ secrets.EC2_PRIVATE_KEY }} ${{ github.workspace }}/build/libs/stay-with-me.jar ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/stay-with-me.jar
+          scp -i ${{ secrets.EC2_PRIVATE_KEY }} \ $(find ${{ github.workspace }}/build/libs/ -name "*.jar" | head -n 1) \ ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/stay-with-me.jar
 
       # 6. EC2에서 애플리케이션 실행
       - name: SSH into EC2 and run the app
