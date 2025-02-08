@@ -3,7 +3,7 @@ name: Build and Deploy Java Application
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시될 때 실행
+      - master  # master 브랜치에 푸시될 때 실행
 
 jobs:
   build:
@@ -23,12 +23,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          server-id: github  # `pom.xml`의 `distributionManagement/repository/id` 필드에 해당
-          settings-path: ${{ github.workspace }}  # settings.xml 파일의 위치
+          settings-path: ${{ github.workspace }}
 
       # 3. Gradle 설치
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582  # v4.0.0
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
       # 4. Gradle로 빌드
       - name: Build with Gradle
@@ -37,11 +36,11 @@ jobs:
       # 5. JAR 파일 EC2로 복사
       - name: Upload JAR to EC2
         run: |
-          scp -i ${{ secrets.EC2_PRIVATE_KEY }} ./build/libs/stay-with-me.jar ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/home/ec2-user/  # EC2로 JAR 파일 복사
+          scp -i ${{ secrets.EC2_PRIVATE_KEY }} ./build/libs/stay-with-me.jar ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/  # EC2로 JAR 파일 복사
 
       # 6. EC2에서 애플리케이션 실행
       - name: SSH into EC2 and run the app
         run: |
           ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            java -jar /home/ec2-user/your-app.jar  # EC2에서 JAR 파일 실행
+            java -jar /apps/stay-with-me/stay-with-me.jar  # EC2에서 JAR 파일 실행
           EOF
