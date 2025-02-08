@@ -25,16 +25,20 @@ jobs:
           distribution: 'temurin'
           settings-path: ${{ github.workspace }}
 
-      # 3. Gradle로 빌드
+      # 3. Gradle 실행 권한 부여
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      # 4. Gradle로 빌드
       - name: Build with Gradle
         run: ./gradlew build
 
-      # 4. JAR 파일 EC2로 복사
+      # 5. JAR 파일 EC2로 복사
       - name: Upload JAR to EC2
         run: |
           scp -i ${{ secrets.EC2_PRIVATE_KEY }} ./build/libs/stay-with-me.jar ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/stay-with-me.jar
 
-      # 5. EC2에서 애플리케이션 실행
+      # 6. EC2에서 애플리케이션 실행
       - name: SSH into EC2 and run the app
         run: |
           ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
