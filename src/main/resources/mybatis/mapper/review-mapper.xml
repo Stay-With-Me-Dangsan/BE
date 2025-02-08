@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.api.model.mapper.HouseReviewMapper">
+    <select id="get" resultType="stay.with.me.api.model.dto.HouseReviewDto">
+        SELECT *
+          FROM house_review
+         WHERE 1 = 1
+           AND review_id = #{reviewId}
+    </select>
+
+    <select id="getList" resultType="stay.with.me.api.model.dto.HouseReviewDto">
+        SELECT *
+          FROM house_review
+         WHERE 1 = 1
+           AND house_detail_id = #{houseDetailId}
+    </select>
+
+    <insert id="create" parameterType="stay.with.me.api.model.dto.HouseReviewDto">
+        INSERT INTO house_review
+        (
+        house_detail_id,
+        star,
+        review_detail,
+        created_by,
+        created_at
+        )
+        values
+        (
+        #{houseDetailId},
+        #{star},
+        #{reviewDetail},
+        #{createdBy},
+        CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="update" useGeneratedKeys="true" keyProperty="reviewId">
+        UPDATE house_review
+        <set>
+            <if test="star != null">
+                star = #{star},
+            </if>
+            <if test="reviewDetail != null">
+                review_detail = #{reviewDetail},
+            </if>
+        </set>
+        WHERE review_id = #{reviewId}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM house_review
+        WHERE review_id = #{reviewId}
+    </delete>
+</mapper>
