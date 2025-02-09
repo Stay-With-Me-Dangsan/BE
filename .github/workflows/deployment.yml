@@ -36,6 +36,13 @@ jobs:
         run: |
           ls -al ${{ github.workspace }}/build/libs/
 
+      - name: Find JAR file
+        run: |
+          echo "Searching for JAR files..."
+          find /home/runner/work/BE/BE/ -name "*.jar" | tee jar_files.log
+          echo "JAR files found:"
+          cat jar_files.log
+
       # 5. JAR 파일 EC2로 복사
       - name: Upload JAR file to EC2
         run: |
