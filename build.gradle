@@ -12,6 +12,14 @@ application {
     mainClass = 'stay.with.me.StayWithMeApplication'
 }
 
+bootJar {
+    manifest {
+        attributes(
+                'Main-Class': 'stay.with.me.StayWithMeApplication'
+        )
+    }
+}
+
 jar {
     archiveBaseName = 'stay-with-me'
     archiveVersion = '1.0.0'
