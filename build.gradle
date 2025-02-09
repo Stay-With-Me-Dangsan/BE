@@ -16,20 +16,18 @@ bootJar {
     archiveFileName = 'stay-with-me.jar'
     manifest {
         attributes(
-                'Main-Class': 'org.springframework.boot.loader.JarLauncher'
+                'Main-Class': 'stay.with.me.StayWithMeApplication'
         )
     }
+}
+
+tasks.named('jar') {
+    enabled = false
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
     }
 }
 
@@ -60,10 +58,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('jar') {
-    enabled = true
-}
-
 tasks.named('test') {
-//    useJUnitPlatform()
+    //useJUnitPlatform()
 }
