@@ -65,7 +65,7 @@ jobs:
       # 8. EC2에서 애플리케이션 실행
       - name: SSH into EC2 and run the app
         run: |
-          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << "EOF"
             # 실행 중인 프로세스 종료
             PID=\$(pgrep -f 'stay-with-me.jar')
             if [ ! -z "\$PID" ]; then
