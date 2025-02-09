@@ -13,17 +13,16 @@ application {
 }
 
 bootJar {
+    archiveFileName = 'stay-with-me.jar'
     manifest {
         attributes(
-                'Main-Class': 'stay.with.me.StayWithMeApplication'
+                'Main-Class': 'org.springframework.boot.loader.JarLauncher'
         )
     }
 }
 
 jar {
-    archiveBaseName = 'stay-with-me'
-    archiveVersion = '1.0.0'
-    archiveFileName = 'stay-with-me.jar'
+    enabled = false
 }
 
 java {
