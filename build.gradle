@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'stay.with'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 application {
     mainClass = 'stay.with.me.StayWithMeApplication'
