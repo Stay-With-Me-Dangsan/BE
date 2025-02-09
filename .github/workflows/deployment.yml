@@ -30,7 +30,7 @@ jobs:
 
       # 4. Gradle로 빌드
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon --refresh-dependencies --stacktrace || (echo "Gradle build failed!" && exit 1)
+        run: ./gradlew bootJar --no-daemon --refresh-dependencies --stacktrace || (echo "Gradle build failed!" && exit 1)
 
       # 5. JAR 파일 확인
       - name: Find JAR file
