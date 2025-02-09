@@ -36,7 +36,7 @@ jobs:
       - name: Find JAR file
         run: |
           echo "Searching for JAR files..."
-          find $GITHUB_WORKSPACE/build/libs -name "stay-with-me.jar" | tee jar_files.log
+          find $GITHUB_WORKSPACE/build/libs -name "*.jar" | tee jar_files.log
           echo "JAR files found:"
           cat jar_files.log
 
@@ -52,7 +52,7 @@ jobs:
       - name: Upload JAR file to EC2
         run: |
           echo "Uploading JAR file to EC2"
-          JAR_PATH=$(find /home/runner/work/BE/BE/build/libs/ -name "stay-with-me.jar" | head -n 1)
+          JAR_PATH=$(find /home/runner/work/BE/BE/build/libs/ -name "*.jar" | head -n 1)
           
           if [ -z "$JAR_PATH" ]; then
             echo "Error: No JAR file found!"
