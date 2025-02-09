@@ -32,6 +32,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --refresh-dependencies --stacktrace || (echo "Gradle build failed!" && exit 1)
 
+      # 5. JAR 파일 확인
       - name: Find JAR file
         run: |
           echo "Searching for JAR files..."
@@ -39,21 +40,31 @@ jobs:
           echo "JAR files found:"
           cat jar_files.log
 
-      - name: Fix file permissions
-        run: chmod 644 /home/runner/work/BE/BE/build/libs/stay-with-me-1.0.0-plain.jar
+      # 6. SSH 키 설정
+      - name: Set up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      # 5. JAR 파일 EC2로 복사
+      # 7. JAR 파일 EC2로 복사
       - name: Upload JAR file to EC2
         run: |
           echo "Uploading JAR file to EC2"
           JAR_PATH=$(find /home/runner/work/BE/BE/build/libs/ -name "stay-with-me-*.jar" | head -n 1)
-          echo "Using JAR_PATH: $JAR_PATH"
-          scp -i ${{ secrets.EC2_PRIVATE_KEY }} "$JAR_PATH" ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/stay-with-me.jar
+          
+          if [ -z "$JAR_PATH" ]; then
+            echo "Error: No JAR file found!"
+            exit 1
+          fi
 
-      # 6. EC2에서 애플리케이션 실행
+          echo "Using JAR_PATH: $JAR_PATH"
+          scp -i ~/.ssh/id_rsa "$JAR_PATH" ec2-user@${{ secrets.EC2_PUBLIC_IP }}:/apps/stay-with-me/stay-with-me.jar
+
+      # 8. EC2에서 애플리케이션 실행
       - name: SSH into EC2 and run the app
         run: |
-          ssh -i ${{ secrets.EC2_PRIVATE_KEY }} ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # 실행 중인 프로세스 종료
             PID=\$(pgrep -f 'stay-with-me.jar')
             if [ ! -z "\$PID" ]; then
@@ -63,5 +74,14 @@ jobs:
 
             # JAR 실행 (백그라운드 실행)
             nohup java -jar /apps/stay-with-me/stay-with-me.jar > /apps/stay-with-me/app.log 2>&1 &
-            echo "Application deployed and running."
+
+            # 실행 확인 (10초 대기 후 프로세스 체크)
+            sleep 10
+            NEW_PID=\$(pgrep -f 'stay-with-me.jar')
+            if [ -z "\$NEW_PID" ]; then
+              echo "Error: Application failed to start!"
+              exit 1
+            fi
+
+            echo "Application deployed and running (PID: \$NEW_PID)."
           EOF
