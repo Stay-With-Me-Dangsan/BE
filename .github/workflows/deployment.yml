@@ -36,7 +36,7 @@ jobs:
       - name: Find JAR file
         run: |
           echo "Searching for JAR files..."
-          find /home/runner/work/BE/BE/ -name "*.jar" | tee jar_files.log
+          find $GITHUB_WORKSPACE/build/libs -name "stay-with-me.jar" | tee jar_files.log
           echo "JAR files found:"
           cat jar_files.log
 
