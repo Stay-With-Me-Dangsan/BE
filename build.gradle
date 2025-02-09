@@ -23,6 +23,7 @@ bootJar {
 jar {
     archiveBaseName = 'stay-with-me'
     archiveVersion = '1.0.0'
+    archiveFileName = 'stay-with-me.jar'
 }
 
 java {
