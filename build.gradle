@@ -14,11 +14,7 @@ application {
 
 bootJar {
     archiveFileName = 'stay-with-me.jar'
-    manifest {
-        attributes(
-                'Main-Class': 'stay.with.me.StayWithMeApplication'
-        )
-    }
+    mainClass = 'stay.with.me.StayWithMeApplication'
 }
 
 tasks.named('jar') {
