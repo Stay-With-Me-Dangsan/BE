@@ -74,7 +74,7 @@ jobs:
             fi
           
             # JAR 실행 (백그라운드 실행)
-            nohup java -jar /apps/stay-with-me/stay-with-me.jar > /apps/stay-with-me/app.log 2>&1 &
+            nohup java -Xms256m -Xmx512m -jar /apps/stay-with-me/stay-with-me.jar > /apps/stay-with-me/app.log 2>&1 &
           
             # 실행 확인 (10초 대기 후 프로세스 체크)
             sleep 10
