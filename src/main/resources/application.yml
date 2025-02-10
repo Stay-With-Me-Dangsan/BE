@@ -9,11 +9,6 @@ spring:
       max-file-size: -1 #무제한
       max-request-size: -1 #무제한
 
-  datasource:
-    url: jdbc:log4jdbc:postgresql://43.202.67.155:5432/stay_with_me?options=-c%20TimeZone=Asia/Seoul
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
   data:
     redis:
       host: stay-with-me-dangsan-cluster-001.axlnad.0001.apn2.cache.amazonaws.com
@@ -34,12 +29,6 @@ logging:
 
 cloud:
   aws:
-    s3:
-      image-bucket: ${S3_IMAGE_BUCKET}
-      file-bucket: ${S3_FILE_BUCKET}
-    credentials:
-      access-key: ${S3_IMAGE_BUCKET_ACCESS_KEY}
-      secret-key: ${S3_IMAGE_BUCKET_SECRET_KEY}
     region:
       static: ap-northeast-2
       auto: false
