@@ -13,6 +13,12 @@ spring:
     redis:
       host: stay-with-me-dangsan-cluster-001.axlnad.0001.apn2.cache.amazonaws.com
       port: 6379
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+          max-wait: 500ms
 
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
@@ -34,3 +40,8 @@ cloud:
       auto: false
     stack:
       auto: false
+
+server:
+  tomcat:
+    threads:
+      max: 50
