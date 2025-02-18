@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 import stay.with.me.api.model.dto.CommunityDto;
 import stay.with.me.api.model.mapper.CommunityMapper;
 import stay.with.me.api.service.CommunityService;
-import stay.with.me.api.service.RedisService;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,16 +50,8 @@ public class CommunityServiceImpl implements CommunityService {
         return chatList;
     }
 
-    @Override
-    public void saveChat(String key, String value, long timeout) {
-        redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MINUTES);
-    }
-
     private String getData(String key) {
+        // TODO redisService로 이동
         return (String) redisTemplate.opsForValue().get(key);
-    }
-
-    public void deleteData(String key) {
-        redisTemplate.delete(key);
     }
 }

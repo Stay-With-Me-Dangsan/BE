@@ -22,8 +22,8 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
-  type-aliases-package: stay.with.me.api.house.model.dto
-  type-handlers-package: stay.with.me.spring.config.mybatis
+  type-aliases-package: stay.with.me.api.model.dto
+  type-handlers-package: stay.with.me.spring.mybatis
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
