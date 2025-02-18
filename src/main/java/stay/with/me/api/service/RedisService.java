@@ -24,11 +24,11 @@ public class RedisService {
 
     public void saveChat(List<CommunityDto> chatList, String district) {
         for(CommunityDto chat : chatList) {
-            String chatKey = KEY + ":" + district;
-            hashOperations.put(KEY + ":" + chat.getChatId(), "userId", chat.getUserId());
-            hashOperations.put(KEY + ":" + chat.getChatId(), "district", district);
-            hashOperations.put(KEY + ":" + chat.getChatId(), "msg", chat.getMsg());
-            hashOperations.put(KEY + ":" + chat.getChatId(), "msgDt", chat.getMsgDt());
+            String chatKey = KEY + ":" + district + chat.getChatId();
+            hashOperations.put(chatKey, "userId", chat.getUserId());
+            hashOperations.put(chatKey, "district", district);
+            hashOperations.put(chatKey, "msg", chat.getMsg());
+            hashOperations.put(chatKey, "msgDt", chat.getMsgDt());
 
             redisTemplate.expire(chatKey, 30, TimeUnit.MINUTES);
         }
