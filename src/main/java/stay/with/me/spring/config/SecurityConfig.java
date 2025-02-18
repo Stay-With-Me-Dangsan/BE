@@ -85,9 +85,9 @@ public class SecurityConfig  {
 //	        configuration.addAllowedOrigin("*");
 //	        configuration.addAllowedHeader("*");
 //	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 허용할 Origin
-	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-	        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://43.202.67.155"));
+	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+	        configuration.setAllowedHeaders(Arrays.asList("*"));
 	        configuration.setAllowCredentials(true);
 
 	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

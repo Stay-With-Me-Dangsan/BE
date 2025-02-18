@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.api.model.mapper.CommunityMapper">
+    <select id="getPostgresChat" resultType="stay.with.me.api.model.dto.CommunityDto">
+        SELECT house_community_content as msg,
+               created_by as userId,
+               created_at as msgDt
+          FROM house_community
+         WHERE 1 = 1
+           AND district = #{district}
+        <if test="lastConDt != null and lastConDt.trim() != ''">
+           AND created_at >= #{lastConDt}
+        </if>
+      ORDER BY created_at
+    </select>
+
+    <insert id="create" parameterType="stay.with.me.api.model.dto.CommonCodeDto">
+        INSERT INTO common_code
+        (
+        common_code_group_id,
+        common_code_key,
+        common_code_name,
+        common_code_description
+        )
+        values
+        (
+        #{commonCodeGroupId},
+        #{commonCodeKey},
+        #{commonCodeName},
+        #{commonCodeDescription}
+        )
+    </insert>
+</mapper>
