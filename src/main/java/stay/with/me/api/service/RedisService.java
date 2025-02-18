@@ -24,7 +24,7 @@ public class RedisService {
 
     public void saveChat(List<CommunityDto> chatList, String district) {
         for(CommunityDto chat : chatList) {
-            String chatKey = KEY + ":" + district + chat.getChatId();
+            String chatKey = KEY + ":" + district + ":" + chat.getChatId();
             hashOperations.put(chatKey, "userId", chat.getUserId());
             hashOperations.put(chatKey, "district", district);
             hashOperations.put(chatKey, "msg", chat.getMsg());
