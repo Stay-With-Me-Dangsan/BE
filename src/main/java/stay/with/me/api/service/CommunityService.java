@@ -8,5 +8,4 @@ public interface CommunityService {
 
     List<CommunityDto> getChat(String district) throws Exception;
 
-    void saveChat(String key, String value, long timeout) throws Exception;
 }
