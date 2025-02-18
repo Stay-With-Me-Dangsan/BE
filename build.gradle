@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.4.0'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'org.postgresql:postgresql:42.7.2'
     implementation 'me.paulschwarz:spring-dotenv:2.5.4'
