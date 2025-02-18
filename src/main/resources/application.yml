@@ -32,6 +32,9 @@ logging:
   level:
     org.mybatis: DEBUG
     org.apache.ibatis: DEBUG
+    org.springframework.web: INFO
+  file:
+    name: app.log
 
 cloud:
   aws:

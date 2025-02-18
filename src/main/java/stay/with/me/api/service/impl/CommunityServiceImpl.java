@@ -3,6 +3,8 @@ package stay.with.me.api.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,6 +25,7 @@ public class CommunityServiceImpl implements CommunityService {
     private final CommunityMapper communityMapper;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(CommunityServiceImpl.class);
 
     @Override
     public List<CommunityDto> getChat(String district) throws Exception {
@@ -39,7 +42,7 @@ public class CommunityServiceImpl implements CommunityService {
                 .filter(json -> json != null)
                 .map(json -> {
                     try {
-                        System.out.println("1 >>>>> " + json);
+                        logger.info("1 >>>>> " + json);
                         return objectMapper.readValue(json, CommunityDto.class);
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
@@ -49,7 +52,7 @@ public class CommunityServiceImpl implements CommunityService {
                 .filter(chat -> chat != null)
                 .collect(Collectors.toList());
         for(CommunityDto x : chatList) {
-            System.out.println("2 >>>>> " + x.toString());
+            logger.info("2 >>>>> " + x.toString());
         }
         String lastConDt = getData("last_saved_time:" + district);
         List<CommunityDto> postgresChat = communityMapper.getPostgresChat(district, lastConDt);
