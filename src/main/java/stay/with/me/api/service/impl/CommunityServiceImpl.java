@@ -31,6 +31,7 @@ public class CommunityServiceImpl implements CommunityService {
     public List<CommunityDto> getChat(String district) throws Exception {
         String keyPattern = "chat:" + district + ":*";
         Set<String> keys = redisTemplate.keys(keyPattern);
+        logger.info(">>>>> Raw Redis Data: {}", keys);
 
         if (keys.size() > 1000) {
             keys = scanKeys(keyPattern);
@@ -42,8 +43,10 @@ public class CommunityServiceImpl implements CommunityService {
                 .filter(json -> json != null)
                 .map(json -> {
                     try {
-                        logger.info("1 >>>>> " + json);
-                        return objectMapper.readValue(json, CommunityDto.class);
+                        logger.info(">>>>> Raw json: {}", json);
+                        CommunityDto dto = objectMapper.readValue(json, CommunityDto.class);
+                        logger.info(">>>>> parsed dto: {}", dto);
+                        return dto;
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                         return null;
@@ -51,9 +54,7 @@ public class CommunityServiceImpl implements CommunityService {
                 })
                 .filter(chat -> chat != null)
                 .collect(Collectors.toList());
-        for(CommunityDto x : chatList) {
-            logger.info("2 >>>>> " + x.toString());
-        }
+        logger.info(">>>>> CommunityDto class: {}", CommunityDto.class);
         String lastConDt = getData("last_saved_time:" + district);
         List<CommunityDto> postgresChat = communityMapper.getPostgresChat(district, lastConDt);
         chatList.addAll(postgresChat);
