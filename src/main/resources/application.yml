@@ -32,7 +32,7 @@ logging:
   level:
     org.mybatis: DEBUG
     org.apache.ibatis: DEBUG
-    org.springframework.web: INFO
+    org.springframework.web: DEBUG
   file:
     name: app.log
     path: /apps/stay-with-me
