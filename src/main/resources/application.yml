@@ -35,6 +35,7 @@ logging:
     org.springframework.web: INFO
   file:
     name: app.log
+    path: /apps/stay-with-me
 
 cloud:
   aws:
