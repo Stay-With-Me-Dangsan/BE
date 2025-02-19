@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import stay.with.me.api.model.dto.CommunityDto;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +17,9 @@ public class RedisService {
 
     public void saveChat(List<CommunityDto> chatList, String district) {
         for(CommunityDto chat : chatList) {
+            Long chatId = redisTemplate.opsForValue().increment("chat_id_seq");
+            chat.setChatId(chatId.toString());
+            chat.setMsgDt(Instant.now().toString());
             String chatKey = KEY + ":" + district + ":" + chat.getChatId();
             redisTemplate.opsForValue().set(chatKey, chat, 30, TimeUnit.MINUTES);
             redisTemplate.expire(chatKey, 30, TimeUnit.MINUTES);
