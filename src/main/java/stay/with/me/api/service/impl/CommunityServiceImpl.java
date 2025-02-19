@@ -15,6 +15,7 @@ import stay.with.me.api.service.CommunityService;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class CommunityServiceImpl implements CommunityService {
         List<CommunityDto> chatList = redisTemplate.opsForValue()
                 .multiGet(keys)
                 .stream()
-                .filter(json -> json != null)
+                .filter(Objects::nonNull)
                 .map(json -> {
                     try {
                         logger.info(">>>>> Raw json: {}", json);
@@ -52,7 +53,7 @@ public class CommunityServiceImpl implements CommunityService {
                         return null;
                     }
                 })
-                .filter(chat -> chat != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         logger.info(">>>>> CommunityDto class: {}", CommunityDto.class);
         String lastConDt = getData("last_saved_time:" + district);
