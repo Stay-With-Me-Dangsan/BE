@@ -7,6 +7,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import stay.with.me.api.model.dto.CommunityDto;
+import stay.with.me.api.service.RedisService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class WebSocketHandler extends TextWebSocketHandler {
     // 채팅방 별 세션 목록을 관리하는 Map
     private static Map<String, List<WebSocketSession>> chatRooms = new HashMap<>();
+    private final RedisService redisService;
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -33,6 +36,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         for (WebSocketSession sess : chatRooms.getOrDefault(roomId, new ArrayList<>())) {
             sess.sendMessage(message);
         }
+
+        // redis 데이터 저장 (userId 수정 필요)
+        CommunityDto chat = new CommunityDto();
+        chat.setUserId("admin");
+        chat.setMsg(payload);
+        chat.setDistrict(roomId);
+        redisService.saveChat(chat, roomId);
     }
 
     /* Client가 접속 시 호출되는 메서드 */

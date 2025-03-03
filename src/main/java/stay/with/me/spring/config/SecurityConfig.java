@@ -24,47 +24,47 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig  {
-	
-//	 private final JwtTokenProvider jwtTokenProvider;
-	
-	
-	@Bean
-    public BCryptPasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-	
-	   @Bean
-	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		   http
-           .csrf(AbstractHttpConfigurer::disable)  // token을 사용하는 방식이기 때문에 csrf를 disabl
-           .httpBasic(AbstractHttpConfigurer::disable)
-         //.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
-           .cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
-           .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-           .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
-           //페이지 접근제한설정
-           .authorizeHttpRequests(
-                  registry -> registry.requestMatchers("/**")
-                           .permitAll()
-                          .anyRequest()
-                          .authenticated()
-           )
+//	 private final JwtTokenProvider jwtTokenProvider;
+
+
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder(){
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+		http
+				.csrf(AbstractHttpConfigurer::disable)  // token을 사용하는 방식이기 때문에 csrf를 disabl
+				.httpBasic(AbstractHttpConfigurer::disable)
+				//.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
+				.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
+				//페이지 접근제한설정
+				.authorizeHttpRequests(
+						registry -> registry.requestMatchers("/**")
+								.permitAll()
+								.anyRequest()
+								.authenticated()
+				)
 
 
 
 //           //JWT 토큰 예외처리부
 //          .addFilterBefore(jwtAuthenticationFilter(jwtTokenProvider),UsernamePasswordAuthenticationFilter.class)
 
-          //예외 처리
+		//예외 처리
 //          .exceptionHandling()
 //          .authenticationEntryPoint(jwtAuthenticationEntryPoint) //401 에러 핸들링을 위한 설정
 //          .accessDeniedHandler(jwtAccessDeniedHandler) // 403 에러 핸들링을 위한 설정
 
-           ;
+		;
 
-	                return http.build();
-	    }
+		return http.build();
+	}
 
 
 
@@ -77,23 +77,23 @@ public class SecurityConfig  {
 
 
 
-		// CORS 허용 적용
-	    @Bean
-	    public CorsConfigurationSource corsConfigurationSource() {
-	        CorsConfiguration configuration = new CorsConfiguration();
+	// CORS 허용 적용
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
 
 //	        configuration.addAllowedOrigin("*");
 //	        configuration.addAllowedHeader("*");
 //	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://43.202.67.155"));
-	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	        configuration.setAllowedHeaders(Arrays.asList("*"));
-	        configuration.setAllowCredentials(true);
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://15.165.166.251"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
 
-	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	        source.registerCorsConfiguration("/**", configuration);
-	        return source;
-	    }
-
-	   
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
+
+
+}
