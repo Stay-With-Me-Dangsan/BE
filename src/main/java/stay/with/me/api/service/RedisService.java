@@ -15,14 +15,12 @@ public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String KEY = "chat";
 
-    public void saveChat(List<CommunityDto> chatList, String district) {
-        for(CommunityDto chat : chatList) {
-            Long chatId = redisTemplate.opsForValue().increment("chat_id_seq");
-            chat.setChatId(chatId.toString());
-            chat.setMsgDt(Instant.now().toString());
-            String chatKey = KEY + ":" + district + ":" + chat.getChatId();
-            redisTemplate.opsForValue().set(chatKey, chat, 30, TimeUnit.MINUTES);
-            redisTemplate.expire(chatKey, 30, TimeUnit.MINUTES);
-        }
+    public void saveChat(CommunityDto chat, String district) {
+        Long chatId = redisTemplate.opsForValue().increment("chat_id_seq");
+        chat.setChatId(chatId.toString());
+        chat.setMsgDt(Instant.now().toString());
+        String chatKey = KEY + ":" + district + ":" + chat.getChatId();
+        redisTemplate.opsForValue().set(chatKey, chat, 30, TimeUnit.MINUTES);
+        redisTemplate.expire(chatKey, 30, TimeUnit.MINUTES);
     }
 }

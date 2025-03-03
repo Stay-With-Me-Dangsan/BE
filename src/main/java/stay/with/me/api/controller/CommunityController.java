@@ -22,8 +22,8 @@ public class CommunityController {
     }
 
     @PostMapping("/save/{district}")
-    public String saveChat(@PathVariable String district, @RequestBody List<CommunityDto> chatList) {
-        redisService.saveChat(chatList, district);
+    public String saveChat(@PathVariable String district, @RequestBody CommunityDto chat) {
+        redisService.saveChat(chat, district);
         return "Data saved!";
     }
 }
