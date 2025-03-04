@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.api.model.mapper.EmailCodeMapper">
+    <!-- 인증코드 찾기 -->
+    <select id="getCode" resultType="String">
+        SELECT code FROM verification_code
+        WHERE email = #{email} AND created_at > NOW() - INTERVAL '5 minutes'
+    </select>
+
+    <!-- 인증코드 저장 -->
+    <insert id="saveCode">
+        INSERT INTO verification_code (email, code, created_at)
+        VALUES (#{email}, #{code}, NOW())
+        ON CONFLICT (email) DO UPDATE
+        SET code = #{code}, created_at = NOW();
+    </insert>
+
+    <!-- 인증코드 삭제 -->
+    <delete id="deleteCode">
+        DELETE FROM verification_code WHERE email = #{email}
+    </delete>
+</mapper>
