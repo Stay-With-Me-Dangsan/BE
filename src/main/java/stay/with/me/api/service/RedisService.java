@@ -20,7 +20,7 @@ public class RedisService {
         chat.setChatId(chatId.toString());
         chat.setMsgDt(Instant.now().toString());
         String chatKey = KEY + ":" + district + ":" + chat.getChatId();
-        redisTemplate.opsForValue().set(chatKey, chat, 30, TimeUnit.MINUTES);
-        redisTemplate.expire(chatKey, 30, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(chatKey, chat, 5, TimeUnit.MINUTES);
+        redisTemplate.expire(chatKey, 5, TimeUnit.MINUTES);
     }
 }
