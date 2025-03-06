@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.model.mapper.ReportMapper">
+    <select id="findAll" resultType="stay.with.me.api.model.dto.ReportDTO">
+        SELECT * FROM report
+    </select>
+
+    <select id="findById" parameterType="long" resultType="stay.with.me.api.model.dto.ReportDTO">
+        SELECT * FROM report WHERE report_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="stay.with.me.api.model.dto.ReportDTO">
+        INSERT INTO report (user_id, reported_reason, reported_details, status, content, created_at)
+        VALUES (#{userId}, #{reportedReason}, #{reportedDetails}, #{status}, #{content}, NOW())
+    </insert>
+
+    <update id="update" parameterType="stay.with.me.api.model.dto.ReportDTO">
+        UPDATE report
+        SET status = #{status}, reported_details = #{reportedDetails}, content = #{content}
+        WHERE report_id = #{reportId}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM report WHERE report_id = #{id}
+    </delete>
+</mapper>
