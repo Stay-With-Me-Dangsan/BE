@@ -31,7 +31,7 @@ public class UserController {
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 회원가입 - 일반 로그인
+    //회원가입(일반 회원)
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto> signup( @RequestBody(required = false) UserDto userDto) {
         // 필수값 검증
@@ -51,7 +51,7 @@ public class UserController {
             );
         }
     }
-
+    // 로그인
     @PostMapping("/signIn")
     public ResponseEntity<ResponseDto> login(@RequestBody(required = false) LoginDTO loginDto, HttpServletResponse response) {
         try {
@@ -69,7 +69,7 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    //이메일 찾기 코드 전송
     @PostMapping("/emailCodeSend")
     public ResponseEntity<ResponseDto> sendVerificationCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -87,7 +87,7 @@ public class UserController {
         Map<String, Object> data = Map.of("result", code);
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "이메일 코드 전송 완료", data, HttpStatus.OK);
     }
-
+    //이메일 전송 코드 확인
     @PostMapping("/emailCodeVerify")
     public ResponseEntity<ResponseDto> verifyCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -107,8 +107,8 @@ public class UserController {
                 isValid ? HttpStatus.OK : HttpStatus.BAD_REQUEST
         );
     }
-
-    @PostMapping("/findId")
+    //이메일 찾기
+    @PostMapping("/findEmail")
     public ResponseEntity<ResponseDto> findId(@RequestBody UserDto userDto) {
         try {
             UserDto user =userService.findEmail(userDto);
@@ -121,7 +121,7 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    //비밀번호 찾기
     @PostMapping("/findPw")
     public ResponseEntity<ResponseDto> findPassword(@RequestParam String email){
         boolean isSent = userService.sendTemporaryPassword(email);
