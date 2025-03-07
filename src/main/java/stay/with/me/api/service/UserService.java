@@ -17,11 +17,9 @@ public interface UserService {
 
     int updateMypage(UserDto userDto);
 
-    String findEmail(String nickname, String birth);
+    UserDto findEmail(UserDto userDto);
 
     boolean sendTemporaryPassword(String email);
-
-    UserDto getUserById(Long userId);
 
     void deleteUser(Long userId) throws Exception;
 

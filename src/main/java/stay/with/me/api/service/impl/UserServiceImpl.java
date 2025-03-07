@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         );
 
         Long userId = ((CustomUserDetails) authentication.getPrincipal()).getUserId();
-        String accessToken = jwtTokenProvider.createAccessToken(userDto.getEmail(), userId);
+        String accessToken = jwtTokenProvider.createAccessToken(userDto.getEmail(), userId, userDto.getNickname());
         String refreshToken = jwtTokenProvider.createRefreshToken(userDto.getEmail(), userId);
 
 
@@ -81,30 +81,35 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) throws Exception {  userMapper.deleteUser(userId); }
 
     public int updateNickname(UserDto userDto) {
-      return userMapper.updateNickname(userDto);
+        return userMapper.updateNickname(userDto);
     }
 
     public int updateMypage(UserDto userDto) {
-       return userMapper.updateMypage(userDto);
+
+        String encodedPw = bCryptPasswordEncoder.encode(userDto.getPassword()); //비밀번호를 암호화
+        userDto.setPassword(encodedPw);
+
+        return userMapper.updateMypage(userDto);
     }
 
-    @Override
-    public UserDto getUserById(Long userId) {return userMapper.findById(userId); }
 
     @Override
-    public String findEmail(String nickname, String birth) { return userMapper.findEmail(nickname, birth); }
+    public UserDto findEmail(UserDto userDto) { return userMapper.findEmail(userDto); }
 
 
     @Override
     public boolean sendTemporaryPassword(String email) {
         UserDto user = userMapper.findByEmail(email);
         if (user == null) {return false; }
-        // 임시 비밀번호 생성 (8자리 랜덤 UUID)
+
         String tempPassword = UUID.randomUUID().toString().substring(0, 8);
-        // 비밀번호 업데이트
-        userMapper.updateTempPassword(email, tempPassword);
-        // 이메일 발송
-        emailService.sendEmail(email, "임시 비밀번호 발급", "임시 비밀번호: " + tempPassword);
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encryptedPassword = passwordEncoder.encode(tempPassword);
+
+        userMapper.updateTempPassword(email, encryptedPassword);
+
+        emailService.sendEmail(email, "StayWithMe 임시 비밀번호 발급", "임시 비밀번호는 " + tempPassword +"입니다 :)");
         return true;
     }
 

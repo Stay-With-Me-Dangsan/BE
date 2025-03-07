@@ -107,15 +107,15 @@ public class UserController {
                 isValid ? HttpStatus.OK : HttpStatus.BAD_REQUEST
         );
     }
-    
+
     @PostMapping("/findId")
-    public ResponseEntity<ResponseDto> findId(@RequestParam String birth, String nickname) {
+    public ResponseEntity<ResponseDto> findId(@RequestBody UserDto userDto) {
         try {
-            String email =userService.findEmail(nickname, birth);
-            if (email == null) {
+            UserDto user =userService.findEmail(userDto);
+            if (user == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "등록된 이메일이 없습니다.", null, HttpStatus.NOT_FOUND);
             }
-            Map<String, Object> data = Map.of("result", email);
+            Map<String, Object> data = Map.of("result", user);
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);

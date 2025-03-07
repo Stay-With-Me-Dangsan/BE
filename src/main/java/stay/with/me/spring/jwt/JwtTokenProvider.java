@@ -34,11 +34,9 @@ import java.util.Date;
 public class JwtTokenProvider implements InitializingBean {
 
 
-    //    @Value("${jwt.secret}")
-    @Value("ZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQo")
-    private String secretKey;
 
-    //    @Value("${jwt.token-validity-in-seconds}")
+    private String secretKey = System.getenv("JWT_SECRET");
+
     private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
     private final CustomUserDetailsService customUserDetailsService;
@@ -60,9 +58,10 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(String email, Long userId) {
+    public String createAccessToken(String email, Long userId, String nickname) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("userId", userId);
+        claims.put("nickname", nickname);
         Date now = new Date();
 
         return Jwts.builder()
@@ -137,7 +136,7 @@ public class JwtTokenProvider implements InitializingBean {
         cookie.setPath("/");       // ✅ 모든 경로에서 사용 가능
         cookie.setMaxAge(7 * 24 * 60 * 60); // ✅ 7일 동안 유지
         return cookie;
-}
+    }
 
     //리프레시 토큰을 쿠키에서 가져오기
     public String getRefreshTokenFromCookie(HttpServletRequest request) {
@@ -170,5 +169,9 @@ public class JwtTokenProvider implements InitializingBean {
 
     public Long getUserIdFromToken(String token) {
         return ((Number) getClaims(token).get("userId")).longValue();
+    }
+
+    public String getNicknameFromToken(String token) {
+        return getClaims(token).getSubject();
     }
 }

@@ -30,7 +30,7 @@ public interface UserMapper {
     //기존계정에 소셜로그인 계정 업데이트
     void updateSocialLogin(Long userId, String provider, String providerId);
 
-    String findEmail(String nickname, String birth);
+    UserDto findEmail(UserDto userDto);
 
     //임시비밀번호로 없데이트
     void updateTempPassword(String email, String password);

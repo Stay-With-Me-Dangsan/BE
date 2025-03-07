@@ -22,7 +22,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (userDto == null) { //없는 회원일 경우 예외처리
             throw new UsernameNotFoundException("Email" + email + "을 찾을수 없습니다");
         }
-        System.out.println("CustomUserDetails여기");
         return new stay.with.me.spring.jwt.CustomUserDetails(userDto);
     }
 }
