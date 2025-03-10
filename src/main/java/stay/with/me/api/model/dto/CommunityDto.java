@@ -16,5 +16,6 @@ public class CommunityDto implements Serializable {
     private String district;
     private String msg;
     private String msgDt;
+    private String isMine;
 
 }

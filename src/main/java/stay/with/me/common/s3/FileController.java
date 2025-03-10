@@ -32,7 +32,7 @@ public class FileController {
             metadata.setContentLength(file.getSize());
             if("image".equals(type)) bucket = imageBucket;
             else if("file".equals(type)) bucket = fileBucket;
-            String fileUrl = "https://" + bucket + fileName;
+            String fileUrl = "https://" + bucket + "/" + fileName;
             amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {

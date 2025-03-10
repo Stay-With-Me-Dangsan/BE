@@ -2,6 +2,7 @@ package stay.with.me.spring.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -26,6 +27,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
+        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Received message: " + payload);
 
         // 세션에서 채팅방 ID 가져오기
@@ -37,9 +39,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
             sess.sendMessage(message);
         }
 
-        // redis 데이터 저장 (userId 수정 필요)
+        // redis 데이터 저장
         CommunityDto chat = new CommunityDto();
-        chat.setUserId("admin");
+        chat.setUserId(userId);
         chat.setMsg(payload);
         chat.setDistrict(roomId);
         redisService.saveChat(chat, roomId);

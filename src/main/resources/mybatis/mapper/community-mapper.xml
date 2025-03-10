@@ -16,20 +16,11 @@
       ORDER BY created_at
     </select>
 
-    <insert id="create" parameterType="stay.with.me.api.model.dto.CommonCodeDto">
-        INSERT INTO common_code
-        (
-        common_code_group_id,
-        common_code_key,
-        common_code_name,
-        common_code_description
-        )
-        values
-        (
-        #{commonCodeGroupId},
-        #{commonCodeKey},
-        #{commonCodeName},
-        #{commonCodeDescription}
-        )
+    <insert id="savePostgresChat" parameterType="java.util.List">
+        INSERT INTO house_community (chatId, userId, district, msg, msgDt)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.chatId}, #{item.userId}, #{item.district}, #{item.msg}, CURRENT_TIMESTAMP)
+        </foreach>
     </insert>
 </mapper>

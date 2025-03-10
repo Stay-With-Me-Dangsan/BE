@@ -10,5 +10,5 @@ public interface CommunityMapper {
 
     List<CommunityDto> getPostgresChat(String district, String lastConDt);
 
-    void saveChat();
+    void savePostgresChat(List<CommunityDto> list);
 }
