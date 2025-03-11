@@ -109,7 +109,7 @@ public class SecurityConfig {
 //	        configuration.addAllowedOrigin("*");
 //	        configuration.addAllowedHeader("*");
 //	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://15.165.166.251"));
+	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://15.165.166.251"));
 	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	        configuration.setAllowedHeaders(Arrays.asList("*"));
 	        configuration.setAllowCredentials(true);
