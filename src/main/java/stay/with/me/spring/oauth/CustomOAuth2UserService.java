@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import stay.with.me.api.model.dto.UserDto;
+import stay.with.me.api.model.dto.user.UserDto;
 import stay.with.me.api.model.mapper.UserMapper;
 import stay.with.me.spring.jwt.JwtTokenProvider;
 
@@ -63,9 +63,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 providerId = (String) kakaoId; // 이미 String인 경우
             }
 
-
-            System.out.println("카카오 ID: " + providerId);
-            System.out.println("카카오 이메일: " + email);
         }else if ("naver".equals(provider)) {
             System.out.println("naver ");
             Map<String, Object> response = oauth2User.getAttribute("response");
@@ -89,7 +86,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // ✅ userId가 있으면 기존 계정과 소셜 계정을 연결
         UserDto existingUser = (userId != null) ? userMapper.findById(userId) : userMapper.findByEmail(email);
 
-        String refreshToken = jwtTokenProvider.createRefreshToken(email, userId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
         if(existingUser != null) {
             // ✅ 기존 계정이 있으면 provider, providerId 업데이트 (소셜 로그인 연동)
             userMapper.updateSocialLogin(existingUser.getUserId(), provider, providerId);
@@ -101,7 +98,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         // JWT 토큰 생성
-        String jwtToken = jwtTokenProvider.createAccessToken(email, userId, existingUser.getNickname());
+        String jwtToken = jwtTokenProvider.createAccessToken(userId);
 
 
 

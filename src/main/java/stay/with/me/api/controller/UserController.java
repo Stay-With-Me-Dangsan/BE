@@ -4,15 +4,15 @@ package stay.with.me.api.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.javassist.bytecode.DuplicateMemberException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import stay.with.me.api.model.dto.*;
-import stay.with.me.api.model.mapper.UserMapper;
+import stay.with.me.api.model.dto.ResponseDto;
+import stay.with.me.api.model.dto.user.LoginDTO;
+import stay.with.me.api.model.dto.user.TokenDto;
+import stay.with.me.api.model.dto.user.UserDto;
+import stay.with.me.api.model.dto.user.UserInfoDto;
 import stay.with.me.api.service.EmailService;
 import stay.with.me.api.service.UserService;
 import stay.with.me.common.ResponseStatus;
@@ -31,9 +31,9 @@ public class UserController {
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    //회원가입(일반 회원)
+    // 회원가입 - 일반 로그인
     @PostMapping("/signUp")
-    public ResponseEntity<ResponseDto> signup( @RequestBody(required = false) UserDto userDto) {
+    public ResponseEntity<ResponseDto> signup(@RequestBody(required = false) UserDto userDto) {
         // 필수값 검증
         if (userDto == null || userDto.getEmail() == null || userDto.getPassword() == null) {
             return ResponseUtil.buildResponse( ResponseStatus.BAD_REQUEST.getCode(),"필수 입력값이 누락되었습니다.",null, HttpStatus.BAD_REQUEST
@@ -51,7 +51,7 @@ public class UserController {
             );
         }
     }
-    // 로그인
+
     @PostMapping("/signIn")
     public ResponseEntity<ResponseDto> login(@RequestBody(required = false) LoginDTO loginDto, HttpServletResponse response) {
         try {
@@ -60,16 +60,34 @@ public class UserController {
             if(tokenDto == null ){
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
             }
-            response.addCookie(jwtTokenProvider.createRefreshTokenCookie(tokenDto.getRefreshToken()));
 
-            Map<String, Object> data = Map.of("result", tokenDto);
+
+            Map<String, Object> data = Map.of("user", tokenDto);
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //이메일 찾기 코드 전송
+
+    @GetMapping("/mypage/{userId}")
+    public ResponseEntity<ResponseDto> getUserProfile(@PathVariable Long userId) {
+        try {
+            UserDto userDto = userService.getUserById(userId);
+
+            if(userDto == null ){
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("user", userDto);
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(),"사용자 정보 조회 성공", data, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(),
+                    e.getMessage(), null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @PostMapping("/emailCodeSend")
     public ResponseEntity<ResponseDto> sendVerificationCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -84,10 +102,10 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), "이메일 전송 실패", null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Map<String, Object> data = Map.of("result", code);
+        Map<String, Object> data = Map.of("user", code);
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "이메일 코드 전송 완료", data, HttpStatus.OK);
     }
-    //이메일 전송 코드 확인
+
     @PostMapping("/emailCodeVerify")
     public ResponseEntity<ResponseDto> verifyCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -99,7 +117,7 @@ public class UserController {
 
         boolean isValid = emailService.verifyCode(email, code);
 
-        Map<String, Object> data = Map.of("result", isValid);
+        Map<String, Object> data = Map.of("user", isValid);
         return ResponseUtil.buildResponse(
                 isValid ? ResponseStatus.SUCCESS.getCode() : ResponseStatus.BAD_REQUEST.getCode(),
                 isValid ? "인증 성공" : "인증 실패",
@@ -107,23 +125,23 @@ public class UserController {
                 isValid ? HttpStatus.OK : HttpStatus.BAD_REQUEST
         );
     }
-    //이메일 찾기
+
     @PostMapping("/findEmail")
-    public ResponseEntity<ResponseDto> findId(@RequestBody UserDto userDto) {
+    public ResponseEntity<ResponseDto> findEmail(@RequestBody UserInfoDto userInfoDto) {
         try {
-            UserDto user =userService.findEmail(userDto);
+            UserInfoDto user =userService.findEmail(userInfoDto);
             if (user == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "등록된 이메일이 없습니다.", null, HttpStatus.NOT_FOUND);
             }
-            Map<String, Object> data = Map.of("result", user);
+            Map<String, Object> data = Map.of("user", user);
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //비밀번호 찾기
+
     @PostMapping("/findPw")
-    public ResponseEntity<ResponseDto> findPassword(@RequestParam String email){
+    public ResponseEntity<ResponseDto> findPassword(@RequestParam("email") String email){
         boolean isSent = userService.sendTemporaryPassword(email);
         if (!isSent) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "등록된 이메일이 없습니다.", null, HttpStatus.BAD_REQUEST);
@@ -144,10 +162,23 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "닉네임 변경 성공", null, HttpStatus.OK);
     }
     // 프로필변경
-    @PatchMapping("/updateMypage")
-    public ResponseEntity<ResponseDto> updateProfile(@RequestBody UserDto userDto) {
+    @PatchMapping("/updateEmail")
+    public ResponseEntity<ResponseDto> updateEmail(@RequestBody UserDto userDto) throws Exception {
 
-        int createdRow = userService.updateMypage(userDto);
+        int createdRow = userService.updateEmail(userDto);
+
+        if (createdRow != 1) {
+            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "프로필 수정 실패", null, HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "프로필 수정 성공", null, HttpStatus.OK);
+    }
+
+    // 프로필변경
+    @PatchMapping("/updatePw")
+    public ResponseEntity<ResponseDto> updatePw(@RequestBody UserDto userDto) {
+
+        int createdRow = userService.updatePw(userDto);
 
         if (createdRow != 1) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "프로필 수정 실패", null, HttpStatus.BAD_REQUEST);
@@ -188,8 +219,27 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    //401에러 발생시 새로운 토큰 발행
+    @PostMapping("/refresh")
+    public ResponseEntity<ResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        try{
+            String refreshToken = jwtTokenProvider.getRefreshTokenFromCookie(request);
 
+            if (refreshToken == null ) {
+                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "Refresh Token이 존재하지 않습니다.", null, HttpStatus.UNAUTHORIZED);
+            }
+            TokenDto tokenDto = userService.refreshAccessToken(refreshToken, response);
 
+            Map<String, Object> data = Map.of("accessToken", tokenDto.getAccessToken());
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK );
+
+        } catch (IllegalArgumentException e) { // 401 에러
+            return ResponseUtil.buildResponse(  ResponseStatus.UNAUTHORIZED.getCode(), e.getMessage(), null, HttpStatus.UNAUTHORIZED );
+        } catch (Exception e) { //500 에러
+            return ResponseUtil.buildResponse( ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(),null, HttpStatus.INTERNAL_SERVER_ERROR );
+        }
+    }
 }
 
 

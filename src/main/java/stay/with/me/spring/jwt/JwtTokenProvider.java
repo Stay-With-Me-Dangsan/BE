@@ -16,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
-import stay.with.me.common.ResponseStatus;
 
 import java.security.Key;
 import java.util.Base64;
@@ -34,8 +32,10 @@ import java.util.Date;
 public class JwtTokenProvider implements InitializingBean {
 
 
+    //    @Value("${jwt.secret}")
+    @Value("ZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQo")
+    private String secretKey;
 
-    private String secretKey = System.getenv("JWT_SECRET");
 
     private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
@@ -58,10 +58,8 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(String email, Long userId, String nickname) {
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("userId", userId);
-        claims.put("nickname", nickname);
+    public String createAccessToken(Long userId) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         Date now = new Date();
 
         return Jwts.builder()
@@ -73,14 +71,11 @@ public class JwtTokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String createRefreshToken(String email, Long userId) {
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("userId", userId);
+    public String createRefreshToken(Long userId) {
         Date now = new Date();
 
         return Jwts.builder()
-                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setClaims(claims)
+                .setSubject(String.valueOf(userId))
                 .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();

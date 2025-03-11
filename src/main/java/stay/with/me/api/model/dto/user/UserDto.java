@@ -1,4 +1,4 @@
-package stay.with.me.api.model.dto;
+package stay.with.me.api.model.dto.user;
 
 import lombok.*;
 
@@ -38,6 +38,5 @@ public class UserDto {
         this.refreshToken = refreshToken;
         this.nickname = nickname;
     }
-
 
 }

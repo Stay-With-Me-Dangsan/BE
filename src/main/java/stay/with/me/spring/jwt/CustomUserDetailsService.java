@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import stay.with.me.api.model.dto.UserDto;
+import stay.with.me.api.model.dto.user.UserDto;
 import stay.with.me.api.model.mapper.UserMapper;
 
 
@@ -22,6 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (userDto == null) { //없는 회원일 경우 예외처리
             throw new UsernameNotFoundException("Email" + email + "을 찾을수 없습니다");
         }
+
         return new stay.with.me.spring.jwt.CustomUserDetails(userDto);
     }
 }

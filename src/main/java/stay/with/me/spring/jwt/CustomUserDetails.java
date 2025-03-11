@@ -3,7 +3,7 @@ package stay.with.me.spring.jwt;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import stay.with.me.api.model.dto.UserDto;
+import stay.with.me.api.model.dto.user.UserDto;
 
 import java.util.ArrayList;
 import java.util.Collection;

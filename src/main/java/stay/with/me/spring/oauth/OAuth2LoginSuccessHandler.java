@@ -27,19 +27,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        // 🔹 인증된 유저 정보 가져오기
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         System.out.println("인증된 사용자 정보: " + userDetails);
 
         Long userId = userDetails.getUserId();
-        String email = userDetails.getUsername();
-        String nickname = userDetails.getNickname();
 
-        // 🔹 JWT 및 Refresh Token 생성
-        String accessToken = jwtTokenProvider.createAccessToken(email, userId, nickname);
-        String refreshToken = jwtTokenProvider.createRefreshToken(email, userId);
 
-        // 🔹 Refresh Token을 DB에 업데이트
+
+        String accessToken = jwtTokenProvider.createAccessToken(userId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+
         int rowsAffected = userMapper.SaveOrUpdateRefreshToken(userId, refreshToken);
         if (rowsAffected > 0) {
             System.out.println("Refresh Token 업데이트 성공");
