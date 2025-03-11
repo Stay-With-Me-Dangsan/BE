@@ -28,7 +28,7 @@ public class FileController {
             String imageBucket = System.getenv("S3_IMAGE_BUCKET");
             String fileBucket = System.getenv("S3_FILE_BUCKET");
             String bucket = "", width = "", height = "", saveFileName = "";
-            String fileName = file.getOriginalFilename();
+            String[] fileName = file.getOriginalFilename().split(".");
             ObjectMetadata metadata= new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
@@ -41,7 +41,7 @@ public class FileController {
                 if(image.getHeight() < 1024) height = String.valueOf(image.getHeight());
                 else height = "1024";
             }
-            saveFileName = fileName + "_" + width + "_" + height;
+            saveFileName = fileName[0] + "_" + width + "_" + height + "." + fileName[1];
             String fileUrl = "https://" + bucket + "/" + saveFileName;
             amazonS3Client.putObject(bucket,saveFileName,file.getInputStream(),metadata);
             return ResponseEntity.ok(fileUrl);
