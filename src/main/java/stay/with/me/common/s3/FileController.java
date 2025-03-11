@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 @RestController
@@ -25,15 +27,23 @@ public class FileController {
         try {
             String imageBucket = System.getenv("S3_IMAGE_BUCKET");
             String fileBucket = System.getenv("S3_FILE_BUCKET");
-            String bucket = "";
+            String bucket = "", width = "", height = "", saveFileName = "";
             String fileName = file.getOriginalFilename();
             ObjectMetadata metadata= new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
             if("image".equals(type)) bucket = imageBucket;
             else if("file".equals(type)) bucket = fileBucket;
-            String fileUrl = "https://" + bucket + "/" + fileName;
-            amazonS3Client.putObject(bucket,fileName,file.getInputStream(),metadata);
+            BufferedImage image = ImageIO.read(file.getInputStream());
+            if (image != null) {
+                if(image.getWidth() < 1024) width = String.valueOf(image.getWidth());
+                else width = "1024";
+                if(image.getHeight() < 1024) height = String.valueOf(image.getHeight());
+                else height = "1024";
+            }
+            saveFileName = fileName + "_" + width + "_" + height;
+            String fileUrl = "https://" + bucket + "/" + saveFileName;
+            amazonS3Client.putObject(bucket,saveFileName,file.getInputStream(),metadata);
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             e.printStackTrace();
