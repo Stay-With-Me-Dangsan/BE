@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Param;
 import stay.with.me.api.model.dto.user.UserDto;
 import stay.with.me.api.model.dto.user.UserInfoDto;
 
+import java.time.LocalDateTime;
+
 
 @Mapper
 public interface UserMapper {
@@ -37,7 +39,7 @@ public interface UserMapper {
     //임시비밀번호로 없데이트
     void updateTempPassword(String email, String password);
 
-    int SaveOrUpdateRefreshToken(Long userId, String refreshToken);
+    int SaveOrUpdateRefreshToken(Long userId, String refreshToken, LocalDateTime expiredAt);
     //저장된 리프레시 토큰찾기
     String findRefreshTokenByUserId(Long userId);
 

@@ -11,6 +11,7 @@ import stay.with.me.spring.jwt.CustomUserDetails;
 import stay.with.me.spring.jwt.JwtTokenProvider;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -37,8 +38,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String accessToken = jwtTokenProvider.createAccessToken(userId);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+        LocalDateTime expiredAt = LocalDateTime.now().plusDays(7);
 
-        int rowsAffected = userMapper.SaveOrUpdateRefreshToken(userId, refreshToken);
+        int rowsAffected = userMapper.SaveOrUpdateRefreshToken(userId, refreshToken, expiredAt);
         if (rowsAffected > 0) {
             System.out.println("Refresh Token 업데이트 성공");
         } else {

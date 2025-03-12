@@ -19,6 +19,7 @@ import stay.with.me.api.service.EmailService;
 import stay.with.me.api.service.UserService;
 import stay.with.me.spring.jwt.JwtTokenProvider;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 @Slf4j
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
 
-    //    회원가입
+
     @Override
     public int signup(UserDto userDto) throws Exception {
 
@@ -43,7 +44,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.signUp(userDto);
     }
 
-    //   일반 로그인
+
     @Override
     public TokenDto signIn(LoginDTO loginDto, HttpServletResponse response) {
 
@@ -59,16 +60,11 @@ public class UserServiceImpl implements UserService {
                 new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
         );
 
-        // ✅ Access Token 생성
         String accessToken = jwtTokenProvider.createAccessToken(userDto.getUserId());
-
-        // ✅ Refresh Token 생성
         String refreshToken = jwtTokenProvider.createRefreshToken(userDto.getUserId());
+        LocalDateTime expiredAt = LocalDateTime.now().plusDays(7);
 
-
-        // refreshToken을 DB에 업데이트
-        // ✅ Refresh Token을 DB에 저장
-        int updatedRows = userMapper.SaveOrUpdateRefreshToken(userDto.getUserId(), refreshToken);
+        int updatedRows = userMapper.SaveOrUpdateRefreshToken(userDto.getUserId(), refreshToken, expiredAt);
         if (updatedRows <= 0) {
             log.error("🚨 Refresh Token 저장 실패: {}", refreshToken);
             throw new RuntimeException("Refresh Token 업데이트 실패");
@@ -102,21 +98,20 @@ public class UserServiceImpl implements UserService {
         String storedRefreshToken = userMapper.findRefreshTokenByUserId(userDto.getUserId());
         log.info("storedRefreshToken : {}" + storedRefreshToken);
 
-        // ✅ Refresh Token이 DB 값과 일치하는지 검증
+
         if (!refreshToken.equals(storedRefreshToken)) {
             log.info("DB의 Refresh Token과 일치하지 않습니다.");
             throw new IllegalArgumentException("DB의 Refresh Token과 일치하지 않습니다.");
         }
 
-        // ✅ 새로운 Access Token 생성
-        String newAccessToken = jwtTokenProvider.createAccessToken(userDto.getUserId());
 
-        // ✅ 새로운 Refresh Token 생성 (필요한 경우)
+        String newAccessToken = jwtTokenProvider.createAccessToken(userDto.getUserId());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(userDto.getUserId());
 
-        // ✅ Refresh Token이 만료될 경우 갱신
-        if (!refreshToken.equals(newRefreshToken)) {
-            userMapper.SaveOrUpdateRefreshToken(userDto.getUserId(), newRefreshToken);
+
+        if (!storedRefreshToken.equals(newRefreshToken)) {
+            LocalDateTime expiredAt = LocalDateTime.now().plusDays(7);
+            userMapper.SaveOrUpdateRefreshToken(userDto.getUserId(), newRefreshToken, expiredAt);
             response.addCookie(jwtTokenProvider.createRefreshTokenCookie(newRefreshToken));
         }
 
@@ -124,7 +119,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    // 회원탈퇴(계정 삭제)
+
     @Override
     public void deleteUser(Long userId)  {  userMapper.deleteUser(userId); }
     @Override
@@ -180,6 +175,7 @@ public class UserServiceImpl implements UserService {
                 .path("/")
                 .httpOnly(true)
                 .secure(true)
+                .sameSite("None")
                 .maxAge(0)
                 .build();
 
