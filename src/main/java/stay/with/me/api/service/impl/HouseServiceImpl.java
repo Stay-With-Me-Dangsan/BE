@@ -3,6 +3,7 @@ package stay.with.me.api.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseFileDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 import stay.with.me.api.model.mapper.HouseMapper;
 import stay.with.me.api.service.HouseService;
@@ -45,6 +46,11 @@ public class HouseServiceImpl implements HouseService {
     @Override
     public int createDetail(HouseDetailDto param) throws Exception {
         return houseMapper.createDetail(param);
+    }
+
+    @Override
+    public void createFile(HouseFileDto param) throws Exception {
+        houseMapper.createFile(param);
     }
 
     @Override

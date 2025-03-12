@@ -169,6 +169,29 @@
         )
     </insert>
 
+    <insert id="createFile" parameterType="stay.with.me.api.model.dto.HouseFileDto">
+        INSERT INTO house_file
+        (
+        house_file_name,
+        house_file_path,
+        house_file_width,
+        house_file_height,
+        house_file_extension,
+        created_by,
+        created_at
+        )
+        values
+        (
+        #{houseFileName},
+        #{houseFilePath},
+        #{houseFileWidth},
+        #{houseFileHeight},
+        #{houseFileExtension},
+        #{createdBy},
+        CURRENT_TIMESTAMP
+        )
+    </insert>
+
     <delete id="deleteDetail" parameterType="int">
         DELETE FROM house_detail
         WHERE house_detail_id = #{houseDetailId}
