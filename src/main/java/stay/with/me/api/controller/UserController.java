@@ -6,7 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import stay.with.me.api.model.dto.ResponseDto;
 import stay.with.me.api.model.dto.user.LoginDTO;
@@ -31,7 +33,7 @@ public class UserController {
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 회원가입 - 일반 로그인
+
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto> signup(@RequestBody(required = false) UserDto userDto) {
         // 필수값 검증
@@ -141,7 +143,8 @@ public class UserController {
     }
 
     @PostMapping("/findPw")
-    public ResponseEntity<ResponseDto> findPassword(@RequestParam("email") String email){
+    public ResponseEntity<ResponseDto> findPassword(@RequestBody Map<String, String> requestBody){
+        String email = requestBody.get("email");
         boolean isSent = userService.sendTemporaryPassword(email);
         if (!isSent) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "등록된 이메일이 없습니다.", null, HttpStatus.BAD_REQUEST);
@@ -149,7 +152,7 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "임시 비밀번호가 이메일로 전송되었습니다.", null, HttpStatus.OK);
 
     }
-    // 닉네임 변경
+
     @PatchMapping("/updateNickname")
     public ResponseEntity<ResponseDto> updateNickname(@RequestBody UserDto userDto) {
 
@@ -161,7 +164,7 @@ public class UserController {
 
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "닉네임 변경 성공", null, HttpStatus.OK);
     }
-    // 프로필변경
+
     @PatchMapping("/updateEmail")
     public ResponseEntity<ResponseDto> updateEmail(@RequestBody UserDto userDto) throws Exception {
 
@@ -174,7 +177,7 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "프로필 수정 성공", null, HttpStatus.OK);
     }
 
-    // 프로필변경
+
     @PatchMapping("/updatePw")
     public ResponseEntity<ResponseDto> updatePw(@RequestBody UserDto userDto) {
 
@@ -187,23 +190,34 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "프로필 수정 성공", null, HttpStatus.OK);
     }
 
-    // 로그아웃
+
     @PostMapping("/logout")
     public ResponseEntity<ResponseDto> logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) throws Exception {
         try {
-            if (userDetails == null) {
-                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "로그인이 필요합니다.", null, HttpStatus.UNAUTHORIZED);
             }
 
+
             Long userId = userDetails.getUserId();
-            userService.logoutUser(userId, response); // ✅ 리프레시 토큰 삭제 및 로그아웃 처리
+
+            if (userId == null) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "사용자를 찾을 수 없습니다.", null, HttpStatus.NOT_FOUND);
+            }
+
+            userService.logoutUser(userId, response);
+
+            SecurityContextHolder.clearContext();
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "로그아웃 성공", null, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //회원탈퇴 ( 계정 삭제 )
+
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<ResponseDto> deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
         try {
@@ -219,14 +233,15 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    //401에러 발생시 새로운 토큰 발행
+
     @PostMapping("/refresh")
     public ResponseEntity<ResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) throws Exception{
         try{
             String refreshToken = jwtTokenProvider.getRefreshTokenFromCookie(request);
 
             if (refreshToken == null ) {
-                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "Refresh Token이 존재하지 않습니다.", null, HttpStatus.UNAUTHORIZED);
+                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(),
+                        "Refresh Token이 존재하지 않습니다.", null, HttpStatus.UNAUTHORIZED);
             }
             TokenDto tokenDto = userService.refreshAccessToken(refreshToken, response);
 
