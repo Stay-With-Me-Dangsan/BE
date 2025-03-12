@@ -172,6 +172,7 @@
     <insert id="createFile" parameterType="stay.with.me.api.model.dto.HouseFileDto">
         INSERT INTO house_file
         (
+        house_detail_id,
         house_file_name,
         house_file_path,
         house_file_width,
@@ -182,6 +183,7 @@
         )
         values
         (
+        #{houseDetailId},
         #{houseFileName},
         #{houseFilePath},
         #{houseFileWidth},
