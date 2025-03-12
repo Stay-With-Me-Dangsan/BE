@@ -2,6 +2,7 @@ package stay.with.me.api.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseFileDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface HouseMapper {
     int createMain(HouseMainDto param);
 
     int createDetail(HouseDetailDto param);
+
+    void createFile(HouseFileDto param);
 
     int updateDetail(HouseDetailDto param);
 
