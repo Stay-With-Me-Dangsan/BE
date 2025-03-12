@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.function.client.WebClient;
 import stay.with.me.spring.jwt.JwtAccessDeniedHandler;
@@ -91,6 +92,8 @@ public class SecurityConfig {
 						.successHandler(oAuth2LoginSuccessHandler) //OAuth2 로그인 성공 시 JWT 발급
 						.failureHandler(oAuth2LoginFailureHandler) // OAuth2 로그인 실패 핸들러
 				)
+				//cors 관련 추가
+				.addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
 				//JWT 토큰 예외처리
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 				.exceptionHandling(exception -> exception
@@ -109,7 +112,7 @@ public class SecurityConfig {
 //	        configuration.addAllowedOrigin("*");
 //	        configuration.addAllowedHeader("*");
 //	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://15.165.166.251", "https://15.165.166.251"));
+	        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://15.165.166.251", "https://15.165.166.251"));
 	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 	        configuration.setAllowedHeaders(Arrays.asList("*"));
 	        configuration.setAllowCredentials(true);
@@ -127,6 +130,12 @@ public class SecurityConfig {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/favicon.ico")
 				.addResourceLocations("classpath:/static/");
+	}
+
+	//cors 관련 추가
+	@Bean
+	public CorsFilter corsFilter() {
+		return new CorsFilter(corsConfigurationSource());
 	}
 	   
 	}
