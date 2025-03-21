@@ -27,7 +27,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("Received message: " + payload);
 
         // 세션에서 채팅방 ID 가져오기
@@ -41,7 +41,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // redis 데이터 저장
         CommunityDto chat = new CommunityDto();
-        chat.setUserId(userId);
+//        chat.setUserId(userId);
         chat.setMsg(payload);
         chat.setDistrict(roomId);
         redisService.saveChat(chat, roomId);
