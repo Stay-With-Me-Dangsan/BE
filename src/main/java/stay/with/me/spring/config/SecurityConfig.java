@@ -109,11 +109,14 @@ public class SecurityConfig {
 	    public CorsConfigurationSource corsConfigurationSource() {
 	        CorsConfiguration configuration = new CorsConfiguration();
 
-//	        configuration.addAllowedOrigin("*");
-//	        configuration.addAllowedHeader("*");
-//	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://15.165.166.251", "https://staywithme.kr", "wss://staywithme.kr", "ws://localhost"));
-	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+			configuration.setAllowedOriginPatterns(Arrays.asList(
+				"http://localhost:3000",
+				"https://15.165.166.251",
+				"https://staywithme.kr",
+				"wss://staywithme.kr",
+				"ws://localhost"
+	        ));
+	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 	        configuration.setAllowedHeaders(Arrays.asList("*"));
 	        configuration.setAllowCredentials(true);
 
