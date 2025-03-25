@@ -12,14 +12,13 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.reactive.config.ResourceHandlerRegistry;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.reactive.function.client.WebClient;
 import stay.with.me.spring.jwt.JwtAccessDeniedHandler;
 import stay.with.me.spring.jwt.JwtAuthenticationEntryPoint;
@@ -43,6 +42,7 @@ public class SecurityConfig {
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
+
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
@@ -62,7 +62,6 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
-
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
@@ -74,23 +73,33 @@ public class SecurityConfig {
 				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
 				//페이지 접근제한설정
 				.authorizeHttpRequests(
-						registry -> registry.requestMatchers("/**")
-								.permitAll()
-								.anyRequest()
-								.authenticated()
+						registry -> registry
+								// 인증 필요한 요청들만 여기서 지정
+								.requestMatchers(
+										"/api/user/mypage/**",
+										"/api/user/logout",
+										"/api/user/delete/**",
+										"/api/user/refresh",
+										"/api/house/register",
+										"/api/house/update/**",
+										"/api/house/delete/**",
+										"/api/house/reserve",
+										"/api/house/like/**"
+								).authenticated()
+
+								// 나머지 모든 요청은 허용
+								.anyRequest().permitAll()
 				)
 
 				/*oauth2 설정*/
 				.oauth2Login(oauth2 -> oauth2
-								.authorizationEndpoint(authorization -> authorization
-										.authorizationRequestRepository(authorizationRequestRepository()) // ✅ 세션 유지
-								)
-						.authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))// 로그인 요청 기본 경로
 						.redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))// 리다이렉션 엔드포인트 설정
 						.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService)) // OAuth2UserService 설정
-						.successHandler(oAuth2LoginSuccessHandler) //OAuth2 로그인 성공 시 JWT 발급
+						.successHandler(oAuth2LoginSuccessHandler)
 						.failureHandler(oAuth2LoginFailureHandler) // OAuth2 로그인 실패 핸들러
 				)
+				//cors 관련 추가
+				.addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
 				//JWT 토큰 예외처리
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 				.exceptionHandling(exception -> exception
@@ -101,32 +110,30 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-		// CORS 허용 적용
-	    @Bean
-	    public CorsConfigurationSource corsConfigurationSource() {
-	        CorsConfiguration configuration = new CorsConfiguration();
 
-//	        configuration.addAllowedOrigin("*");
-//	        configuration.addAllowedHeader("*");
-//	        configuration.addAllowedMethod("*");
-	        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://15.165.166.251"));
-	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	        configuration.setAllowedHeaders(Arrays.asList("*"));
-	        configuration.setAllowCredentials(true);
 
-	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	        source.registerCorsConfiguration("/**", configuration);
-	        return source;
-	    }
+	// CORS 허용 적용
 	@Bean
-	public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
-		return new HttpSessionOAuth2AuthorizationRequestRepository();
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://15.165.166.251", "https://15.165.166.251", "https://staywithme.kr"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 
-//파비콘 추가
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/favicon.ico")
-				.addResourceLocations("classpath:/static/");
+
+
+	//cors 관련 추가
+	@Bean
+	public CorsFilter corsFilter() {
+		return new CorsFilter(corsConfigurationSource());
 	}
-	   
-	}
+
+
+}

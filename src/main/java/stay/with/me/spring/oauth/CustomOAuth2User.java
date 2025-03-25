@@ -9,9 +9,14 @@ import java.util.Map;
 public class CustomOAuth2User implements OAuth2User {
 
     private final OAuth2User oauth2User;
+    private final String provider;
+    private final Long userId;
 
-    public CustomOAuth2User(OAuth2User oauth2User) {
+
+    public CustomOAuth2User(OAuth2User oauth2User, String provider, Long userId) {
         this.oauth2User = oauth2User;
+        this.provider = provider;
+        this.userId = userId;
     }
 
     @Override
@@ -27,5 +32,12 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         return oauth2User.getName();
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+    public Long getUserId() {
+        return userId;
     }
 }

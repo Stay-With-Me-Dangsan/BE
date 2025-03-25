@@ -15,6 +15,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserMapper userMapper;
 
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -25,4 +26,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new stay.with.me.spring.jwt.CustomUserDetails(userDto);
     }
+
+
+    public UserDetails loadUserByUserId(Long userId) throws UsernameNotFoundException {
+        UserDto userDto = userMapper.findById(userId);
+        if (userDto == null) {
+            throw new UsernameNotFoundException("User ID " + userId + "을 찾을 수 없습니다");
+        }
+        return new CustomUserDetails(userDto);
+    }
+
 }

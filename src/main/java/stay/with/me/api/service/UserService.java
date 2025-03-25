@@ -15,6 +15,8 @@ public interface UserService {
 
     UserDto getUserById(Long userId);
 
+    int updateOuathReg(UserDto userDto);
+
     int updateNickname(UserDto userDto);
 
     int updateEmail(UserDto userDto) throws Exception;

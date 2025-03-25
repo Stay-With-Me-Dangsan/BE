@@ -1,5 +1,6 @@
 package stay.with.me.api.model.mapper;
 
+import org.apache.catalina.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import stay.with.me.api.model.dto.user.UserDto;
@@ -13,6 +14,10 @@ public interface UserMapper {
 
     int signUp(UserDto userDto);
 
+    int updateLastLogin(@Param("userId") Long userId, @Param("provider") String provider);
+
+    int updateOauthReg(UserDto userDto);
+
     int updateNickname(UserDto userDto);
 
     int updateEmail(UserDto userDto);
@@ -25,21 +30,17 @@ public interface UserMapper {
     UserDto findById(Long userId);
 
 
-    void insertSocialUser(UserDto newUser);
-
-    void OauthSingUp(UserDto user);
-
-    UserDto findOauthByEmail(String email,String providerId);
-
     //기존계정에 소셜로그인 계정 업데이트
-    void updateSocialLogin(Long userId, String provider, String providerId);
+
+    void InsertOrUpdateOauth(UserDto userDto);
 
     UserInfoDto findEmail(UserInfoDto userInfoDto);
 
     //임시비밀번호로 없데이트
     void updateTempPassword(String email, String password);
 
-    int SaveOrUpdateRefreshToken(Long userId, String refreshToken, LocalDateTime expiredAt);
+    int updateRefreshToken(Long userId, String refreshToken, LocalDateTime expiredAt);
+
     //저장된 리프레시 토큰찾기
     String findRefreshTokenByUserId(Long userId);
 

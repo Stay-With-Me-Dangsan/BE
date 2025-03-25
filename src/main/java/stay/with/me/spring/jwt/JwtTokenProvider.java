@@ -38,7 +38,7 @@ public class JwtTokenProvider implements InitializingBean {
 
 
     private final Long accessTokenValidMillisecond = 60 * 60 * 1000L; // 1 hour
-    private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; // 14 day
+    private final Long refreshTokenValidMillisecond = 7 * 24 * 60 * 60 * 1000L; // 7 day
     private final CustomUserDetailsService customUserDetailsService;
     private Key key;
 
@@ -58,8 +58,9 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(Long userId) {
+    public String createAccessToken(Long userId, boolean isNewUser) {
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+        claims.put("isNewUser", isNewUser);
         Date now = new Date();
 
         return Jwts.builder()
@@ -76,6 +77,7 @@ public class JwtTokenProvider implements InitializingBean {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(now.getTime() + refreshTokenValidMillisecond))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
@@ -86,7 +88,8 @@ public class JwtTokenProvider implements InitializingBean {
         // Jwt 에서 claims 추출
         Claims claims = getClaims(token);
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
+        Long userId = Long.valueOf(claims.getSubject());
+        UserDetails userDetails = customUserDetailsService.loadUserByUserId(userId);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 
     }

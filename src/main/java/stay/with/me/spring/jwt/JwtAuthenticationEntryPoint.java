@@ -19,12 +19,17 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         String exception = (String) request.getAttribute("exception");
-        String message = switch (exception) {
-            case "TOKEN_EXPIRED" -> "Token has expired";
-            case "INVALID_TOKEN" -> "Invalid token";
-            case "TOKEN_VERIFICATION_FAILED" -> "Token verification failed";
-            default -> "Unauthorized request";
-        };
+        String message;
+        if(exception == null) {
+            message = "Unauthorized request";
+        } else{
+            message = switch (exception) {
+                case "TOKEN_EXPIRED" -> "Token has expired";
+                case "INVALID_TOKEN" -> "Invalid token";
+                case "TOKEN_VERIFICATION_FAILED" -> "Token verification failed";
+                default -> "Unauthorized request";
+            };
+        }
 
 
         response.getWriter().write("{\"code\": 401, \"message\": \"" + message + "\"}");
