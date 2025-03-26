@@ -128,9 +128,8 @@
 
     <update id="SaveOrUpdateRefreshToken" parameterType="stay.with.me.api.model.dto.user.UserDto">
         UPDATE USERS
-        SET user_id = #{userId},
-            refresh_token = #{refreshToken},
-            rt_expired_date = now()
+        SET refresh_token = #{refreshToken},
+            rt_expired_date = #{expiredAt}
         WHERE user_id = #{userId}
     </update>
     <update id="updateSocialLogin" parameterType="map">
@@ -140,7 +139,8 @@
     </update>
 
     <delete id="deleteRefreshToken" parameterType="Long">
-        DELETE FROM USERS
+        DELETE refresh_token, rt_expired_date
+        FROM USERS
         WHERE user_id = #{userId}
     </delete>
 
