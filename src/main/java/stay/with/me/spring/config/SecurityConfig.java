@@ -112,6 +112,7 @@ public class SecurityConfig {
 			configuration.setAllowedOriginPatterns(Arrays.asList(
 				"http://localhost:3000",
 				"https://15.165.166.251",
+				"https://www.staywithme.kr",
 				"https://staywithme.kr",
 				"wss://staywithme.kr",
 				"ws://localhost"
