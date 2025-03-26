@@ -118,7 +118,6 @@ public class SecurityConfig {
 				"ws://localhost"
 	        ));
 	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-	        configuration.setAllowedHeaders(Arrays.asList("*"));
 	        configuration.setAllowCredentials(true);
 
 	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
