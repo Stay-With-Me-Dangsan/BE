@@ -109,7 +109,7 @@ public class SecurityConfig {
 	    public CorsConfigurationSource corsConfigurationSource() {
 	        CorsConfiguration configuration = new CorsConfiguration();
 
-			configuration.setAllowedOriginPatterns(Arrays.asList(
+			configuration.setAllowedOrigins(Arrays.asList(
 				"http://localhost:3000",
 				"https://15.165.166.251",
 				"https://www.staywithme.kr",
