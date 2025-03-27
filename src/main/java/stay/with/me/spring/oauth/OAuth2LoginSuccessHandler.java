@@ -50,9 +50,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             String accessToken = jwtTokenProvider.createAccessToken(userId, isNewUser);
 
             if (isNewUser) {
-                redirectUrl = "http://localhost:3000/oauth/register/" + provider + "?accessToken=" + accessToken;
+                redirectUrl = "https://staywithme.kr/oauth/register/" + provider + "?accessToken=" + accessToken;
             } else {
-               redirectUrl = "http://localhost:3000/oauth/success/" + provider + "?accessToken=" + accessToken;
+               redirectUrl = "https://staywithme.kr/oauth/success/" + provider + "?accessToken=" + accessToken;
             }
 
 
