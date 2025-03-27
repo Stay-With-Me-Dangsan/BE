@@ -10,7 +10,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 import stay.with.me.api.model.dto.user.UserDto;
 import stay.with.me.api.model.mapper.UserMapper;
-import stay.with.me.spring.jwt.CustomUserDetails;
 import stay.with.me.spring.jwt.JwtTokenProvider;
 
 import java.io.IOException;
@@ -43,11 +42,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             userMapper.updateRefreshToken(userId, refreshToken, expiredAt);
             response.addCookie(jwtTokenProvider.createRefreshTokenCookie(refreshToken));
 
-            // 유저 정보 조회
             UserDto userDto = userMapper.findById(userId);
 
 
-            // 성별이나 생일이 없으면 간편회원가입 페이지로
             String redirectUrl;
             boolean isNewUser = userDto.getBirth() == null || userDto.getGender() == null;
             String accessToken = jwtTokenProvider.createAccessToken(userId, isNewUser);

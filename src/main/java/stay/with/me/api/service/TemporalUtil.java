@@ -7,6 +7,7 @@ import java.util.Random;
 
 @Service
 public class TemporalUtil {
+
     private static final String SPECIAL_CHARACTERS = "!@#$%^&*";
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final Random RANDOM = new SecureRandom();
@@ -23,7 +24,6 @@ public class TemporalUtil {
     }
 
     public String socialPassword(String provider) {
-
 
         char firstChar = Character.toLowerCase(provider.charAt(0));
         String randomNumbers = String.format("%05d", RANDOM.nextInt(100000));

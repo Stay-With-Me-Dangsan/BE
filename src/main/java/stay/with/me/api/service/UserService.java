@@ -30,7 +30,6 @@ public interface UserService {
 
     boolean sendTemporaryPassword(String email);
 
-
     void deleteUser(Long userId) throws Exception;
 
     void logoutUser(Long userId, HttpServletResponse response);

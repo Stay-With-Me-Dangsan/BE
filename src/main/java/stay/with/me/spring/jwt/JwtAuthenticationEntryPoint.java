@@ -31,7 +31,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             };
         }
 
-
         response.getWriter().write("{\"code\": 401, \"message\": \"" + message + "\"}");
     }
 }

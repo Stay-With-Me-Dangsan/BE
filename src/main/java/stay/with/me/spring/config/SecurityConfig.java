@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.web.reactive.function.client.WebClient;
 import stay.with.me.spring.jwt.JwtAccessDeniedHandler;
 import stay.with.me.spring.jwt.JwtAuthenticationEntryPoint;
@@ -42,7 +44,6 @@ public class SecurityConfig {
 	private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 	private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
-
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
@@ -62,10 +63,11 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(AbstractHttpConfigurer::disable)  // token을 사용하는 방식이기 때문에 csrf를 disabl
+				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
 				//.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
@@ -73,29 +75,18 @@ public class SecurityConfig {
 				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
 				//페이지 접근제한설정
 				.authorizeHttpRequests(
-						registry -> registry
-								// 인증 필요한 요청들만 여기서 지정
-								.requestMatchers(
-										"/api/user/mypage/**",
-										"/api/user/logout",
-										"/api/user/delete/**",
-										"/api/user/refresh",
-										"/api/house/register",
-										"/api/house/update/**",
-										"/api/house/delete/**",
-										"/api/house/reserve",
-										"/api/house/like/**"
-								).authenticated()
-
-								// 나머지 모든 요청은 허용
-								.anyRequest().permitAll()
+						registry -> registry.requestMatchers("/**")
+								.permitAll()
+								.anyRequest()
+								.authenticated()
 				)
 
 				/*oauth2 설정*/
 				.oauth2Login(oauth2 -> oauth2
+						.authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))// 로그인 요청 기본 경로
 						.redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))// 리다이렉션 엔드포인트 설정
 						.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService)) // OAuth2UserService 설정
-						.successHandler(oAuth2LoginSuccessHandler)
+						.successHandler(oAuth2LoginSuccessHandler) //OAuth2 로그인 성공 시 JWT 발급
 						.failureHandler(oAuth2LoginFailureHandler) // OAuth2 로그인 실패 핸들러
 				)
 				//cors 관련 추가
@@ -110,30 +101,41 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-
-
 	// CORS 허용 적용
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 
-		configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://15.165.166.251", "https://15.165.166.251", "https://staywithme.kr"));
+		configuration.setAllowedOrigins(Arrays.asList(
+				"http://localhost:3000",
+				"https://15.165.166.251",
+				"https://www.staywithme.kr",
+				"https://staywithme.kr",
+				"wss://staywithme.kr",
+				"ws://localhost"
+		));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
+	@Bean
+	public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+		return new HttpSessionOAuth2AuthorizationRequestRepository();
+	}
 
-
+	//파비콘 추가
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/favicon.ico")
+				.addResourceLocations("classpath:/static/");
+	}
 
 	//cors 관련 추가
 	@Bean
 	public CorsFilter corsFilter() {
 		return new CorsFilter(corsConfigurationSource());
 	}
-
 
 }

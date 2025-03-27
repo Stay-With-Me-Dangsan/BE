@@ -58,32 +58,37 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         UserDto existingUser = userMapper.findByEmail(email);
         Long userId;
-        String nickname;
+        String nickname = null;
         String gender = null;
         String birth = null;
-        if(existingUser != null) {
+        if(existingUser == null) {
 
-            userId = existingUser.getUserId();
-            nickname = existingUser.getNickname();
-            gender = existingUser.getGender();
-            birth = existingUser.getBirth();
-        // 또는 다시 받아온 닉네임 사용 가능
-        } else { // 신규 사용자 등록
-
-            nickname = temporalUtil.socialNickname(provider,providerId);
             String password = temporalUtil.socialPassword(provider);
-
             UserDto newUser = new UserDto();
             newUser.setEmail(email);
             newUser.setPassword(password);
             newUser.setNickname(nickname);
+            newUser.setBirth(birth);
+            newUser.setGender(gender);
+            newUser.setProvider(provider);
 
             userMapper.signUp(newUser);
+
             userId = newUser.getUserId();
 
+        } else {
+            userId = existingUser.getUserId();
         }
-        userMapper.InsertOrUpdateOauth(new UserDto(
-                userId, email, provider, providerId, gender, nickname, birth));
+
+        boolean isAlreadyOauth = userMapper.existsOauthUser(provider, providerId);
+
+        if (!isAlreadyOauth) {
+            userMapper.InsertOauth(new UserDto(
+                    userId, email, provider, providerId, gender, nickname, birth));
+        }
+
+        userMapper.updateLastLogin(userId, provider);
+
         return new CustomOAuth2User(oauth2User, provider, userId);
     }
 }

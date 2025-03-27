@@ -32,8 +32,7 @@ import java.util.Date;
 public class JwtTokenProvider implements InitializingBean {
 
 
-    //    @Value("${jwt.secret}")
-    @Value("ZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQoZGhybmZtYQo")
+    @Value("${jwt.secret}")
     private String secretKey;
 
 

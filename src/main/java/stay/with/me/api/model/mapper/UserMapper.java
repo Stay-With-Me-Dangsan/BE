@@ -30,9 +30,8 @@ public interface UserMapper {
     UserDto findById(Long userId);
 
 
-    //기존계정에 소셜로그인 계정 업데이트
-
-    void InsertOrUpdateOauth(UserDto userDto);
+    void InsertOauth(UserDto userDto);
+    void UpdateOauth(UserDto userDto);
 
     UserInfoDto findEmail(UserInfoDto userInfoDto);
 
@@ -50,4 +49,5 @@ public interface UserMapper {
     void deleteUser(Long userId);
 
 
+    boolean existsOauthUser(String provider, String providerId);
 }

@@ -45,7 +45,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.signUp(userDto);
     }
 
-
     @Override
     public TokenDto signIn(LoginDTO loginDto, HttpServletResponse response) {
 
@@ -134,7 +133,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateEmail(UserDto userDto) throws Exception {
 
-        UserDto existingUser = userMapper.findByEmail(userDto.getEmail()); // 🔹 기존 회원 정보를 가져옴
+        UserDto existingUser = userMapper.findByEmail(userDto.getEmail());
         if (existingUser != null) {
             throw new DuplicateMemberException("이미 존재하는 이메일입니다.");
         }
