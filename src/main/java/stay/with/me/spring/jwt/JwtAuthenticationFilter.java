@@ -34,8 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = resolveToken(request);
 
-        if (accessToken == null || accessToken.isEmpty() || !accessToken.startsWith("Bearer")) {
-           filterChain.doFilter(request, response);
+        if (accessToken == null || accessToken.isEmpty() ) {
+            filterChain.doFilter(request, response);
             return;
         }
 
