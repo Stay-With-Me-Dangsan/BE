@@ -31,6 +31,7 @@ import stay.with.me.spring.oauth.OAuth2LoginFailureHandler;
 import stay.with.me.spring.oauth.OAuth2LoginSuccessHandler;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -106,7 +107,7 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 
-		configuration.setAllowedOrigins(Arrays.asList(
+		configuration.setAllowedOriginPatterns(List.of(
 				"http://localhost:3000",
 				"https://15.165.166.251",
 				"https://www.staywithme.kr",
@@ -116,6 +117,8 @@ public class SecurityConfig {
 		));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		configuration.setAllowCredentials(true);
+
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
