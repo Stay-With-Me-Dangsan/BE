@@ -31,25 +31,29 @@ public class WebSocketHandler extends TextWebSocketHandler {
         ObjectMapper objectMapper = new ObjectMapper();
         TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
         Map<String, Object> map = objectMapper.readValue(payload, typeReference);
-        String msg = (String) map.get("msg");
-        TextMessage sessMsg = new TextMessage(msg);
-        String userId = (String) map.get("userId");
+        String type = (String) map.get("type");
 
-        // 세션에서 채팅방 ID 가져오기
-        String roomId = getRoomIdFromSession(session);
-        if (roomId == null) return;
+        if(!"ping".equals(type)) {
+            String msg = (String) map.get("msg");
+            TextMessage sessMsg = new TextMessage(msg);
+            String userId = (String) map.get("userId");
 
-        // 채팅방에 속한 모든 세션에 메시지 전송
-        for (WebSocketSession sess : chatRooms.getOrDefault(roomId, new ArrayList<>())) {
-            sess.sendMessage(sessMsg);
+            // 세션에서 채팅방 ID 가져오기
+            String roomId = getRoomIdFromSession(session);
+            if (roomId == null) return;
+
+            // 채팅방에 속한 모든 세션에 메시지 전송
+            for (WebSocketSession sess : chatRooms.getOrDefault(roomId, new ArrayList<>())) {
+                sess.sendMessage(sessMsg);
+            }
+
+            // redis 데이터 저장
+            CommunityDto chat = new CommunityDto();
+            chat.setUserId(userId);
+            chat.setMsg(msg);
+            chat.setDistrict(roomId);
+            redisService.saveChat(chat, roomId);
         }
-
-        // redis 데이터 저장
-        CommunityDto chat = new CommunityDto();
-        chat.setUserId(userId);
-        chat.setMsg(msg);
-        chat.setDistrict(roomId);
-        redisService.saveChat(chat, roomId);
     }
 
     /* Client가 접속 시 호출되는 메서드 */
