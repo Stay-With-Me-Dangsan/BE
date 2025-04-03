@@ -31,12 +31,15 @@ public class UserDto {
 
 
     //소셜로 가입시 유저 등록
-    public UserDto(String email, String provider, String providerId,String refreshToken, String nickname) {
+    public UserDto(Long userId, String email, String provider, String providerId, String gender, String nickname, String birth) {
+        this.userId = userId;
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
-        this.refreshToken = refreshToken;
+        this.gender = gender;
         this.nickname = nickname;
+        this.birth = birth;
     }
+
 
 }

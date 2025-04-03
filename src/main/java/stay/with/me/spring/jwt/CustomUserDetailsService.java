@@ -15,14 +15,25 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserMapper userMapper;
 
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        UserDto userDto = userMapper.findByEmail(email); //DB에서 유저가 입력한 ID와 일치하는 정보를 불러온다
+        UserDto userDto = userMapper.findByEmail(email);
         if (userDto == null) { //없는 회원일 경우 예외처리
             throw new UsernameNotFoundException("Email" + email + "을 찾을수 없습니다");
         }
 
         return new stay.with.me.spring.jwt.CustomUserDetails(userDto);
     }
+
+
+    public UserDetails loadUserByUserId(Long userId) throws UsernameNotFoundException {
+        UserDto userDto = userMapper.findById(userId);
+        if (userDto == null) {
+            throw new UsernameNotFoundException("User ID " + userId + "을 찾을 수 없습니다");
+        }
+        return new CustomUserDetails(userDto);
+    }
+
 }

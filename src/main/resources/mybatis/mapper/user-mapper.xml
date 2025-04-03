@@ -11,7 +11,7 @@
         <result property="gender" column="gender"/>
         <result property="birth" column="birth"/>
     </resultMap>
-    <insert id="signUp" parameterType="stay.with.me.api.model.dto.user.UserDto">
+    <insert id="signUp" parameterType="stay.with.me.api.model.dto.user.UserDto" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO USERS
         (
             email,
@@ -34,41 +34,35 @@
         )
     </insert>
 
-    <insert id="OauthSingUp" parameterType="stay.with.me.api.model.dto.user.UserDto">
-        INSERT INTO social_account (email, password, nickname, provider, provider_id, refreshToken, created_date)
-        VALUES (#{email},'SOCIAL_User','SOCIAL_nickname', #{provider}, #{providerId}, #{refreshToken},  NOW())
+
+
+    <insert id="InsertOauth" parameterType="map">
+        INSERT INTO social_user (user_id, email, provider, provider_id, gender, nickname, birth, created_date)
+        VALUES (#{userId}, #{email}, #{provider}, #{providerId}, #{gender}, #{nickname}, #{birth}, NOW())
     </insert>
 
-
-    <select id="saveOauthUser" parameterType="stay.with.me.api.model.dto.user.UserDto">
-        INSERT INTO USERS
-        (
-            email,
-            password,
-            nickname,
-            gender,
-            birth
-
-        )
-        VALUES
-        (
-            #{email},
-            #{password},
-            'null',
-            'null',
-            'null'
-        )
-    </select>
 
 
     <select id="findByEmail" resultType="stay.with.me.api.model.dto.user.UserDto">
         SELECT * FROM USERS
         WHERE email = #{email}
-          AND provider = 'local'
+      AND provider = 'local'
     </select>
 
-    <!--아이디로 유저 찾기-->    <select id="findById" resultType="stay.with.me.api.model.dto.user.UserDto">
-        SELECT user_id, email, nickname, birth, gender, created_date, provider FROM USERS
+    <select id="existsOauthUser" resultType="boolean">
+        SELECT EXISTS (
+                       SELECT 1
+                       FROM social_user
+                       WHERE provider = #{provider}
+                         AND provider_id = #{providerId}
+                   )
+    </select>
+
+
+
+    <select id="findById" resultType="stay.with.me.api.model.dto.user.UserDto">
+        SELECT user_id, email, nickname, birth, gender, created_date, provider
+        FROM USERS
         WHERE user_id = #{userId}
     </select>
 
@@ -92,6 +86,19 @@
     </select>
 
 
+    <update id="updateLastLogin">
+        UPDATE USERS
+        SET last_login = NOW(),
+            last_login_provider = #{provider}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateOauthReg" parameterType="UserDto">
+        UPDATE USERS
+        SET nickname = #{nickname}, gender = #{gender}, birth = #{birth}
+        WHERE user_id = #{userId}
+    </update>
+
     <update id="updateTempPassword">
         UPDATE USERS
         SET password = #{password}
@@ -106,7 +113,7 @@
     </update>
 
     <update id="updateEmail" parameterType="UserDto">
-        UPDATE users
+        UPDATE USERS
         <set>
             <if test="email != null">
                 email = #{email},
@@ -116,7 +123,7 @@
     </update>
 
     <update id="updatePw" parameterType="UserDto">
-        UPDATE users
+        UPDATE USERS
         <set>
             <if test="password != null">
                 password = #{password}
@@ -126,17 +133,14 @@
     </update>
 
 
-    <update id="SaveOrUpdateRefreshToken" parameterType="stay.with.me.api.model.dto.user.UserDto">
-        UPDATE USERS
+    <update id="updateRefreshToken" parameterType="stay.with.me.api.model.dto.user.UserDto">
+
+        UPDATE users
         SET refresh_token = #{refreshToken},
-            rt_expired_date = #{expiredAt}
+            rt_expired_date = #{expiredAt}::timestamp
         WHERE user_id = #{userId}
     </update>
-    <update id="updateSocialLogin" parameterType="map">
-        UPDATE USERS
-        SET provider = #{provider}, provider_id = #{providerId}
-        WHERE user_id = #{userId}
-    </update>
+
 
     <delete id="deleteRefreshToken" parameterType="Long">
         DELETE refresh_token, rt_expired_date

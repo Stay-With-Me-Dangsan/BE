@@ -92,7 +92,21 @@ cloud:
     stack:
       auto: false
 
+#server:
+#  tomcat:
+#    threads:
+#      max: 50
+
 server:
   tomcat:
     threads:
       max: 50
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+    session:
+      cookie:
+        same-site: none
+        secure: true
+

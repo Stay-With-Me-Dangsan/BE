@@ -37,7 +37,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> authorities  = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority(role)); // 역할을 GrantedAuthority로 변환하여 추가
+        authorities.add(new SimpleGrantedAuthority(role));
         return authorities ;
 
     }
@@ -110,5 +110,6 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() { //계정의 비활성화 여부를 리턴한다
         return true;
     }
+
 
 }

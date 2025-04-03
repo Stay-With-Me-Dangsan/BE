@@ -31,6 +31,7 @@ import stay.with.me.spring.oauth.OAuth2LoginFailureHandler;
 import stay.with.me.spring.oauth.OAuth2LoginSuccessHandler;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -67,7 +68,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(AbstractHttpConfigurer::disable)  // token을 사용하는 방식이기 때문에 csrf를 disabl
+				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
 				//.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
@@ -83,9 +84,6 @@ public class SecurityConfig {
 
 				/*oauth2 설정*/
 				.oauth2Login(oauth2 -> oauth2
-								.authorizationEndpoint(authorization -> authorization
-										.authorizationRequestRepository(authorizationRequestRepository()) // ✅ 세션 유지
-								)
 						.authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))// 로그인 요청 기본 경로
 						.redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))// 리다이렉션 엔드포인트 설정
 						.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService)) // OAuth2UserService 설정
@@ -104,32 +102,34 @@ public class SecurityConfig {
 
 		return http.build();
 	}
-		// CORS 허용 적용
-	    @Bean
-	    public CorsConfigurationSource corsConfigurationSource() {
-	        CorsConfiguration configuration = new CorsConfiguration();
+	// CORS 허용 적용
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
 
-			configuration.setAllowedOrigins(Arrays.asList(
+		configuration.setAllowedOriginPatterns(List.of(
 				"http://localhost:3000",
 				"https://15.165.166.251",
 				"https://www.staywithme.kr",
 				"https://staywithme.kr",
 				"wss://staywithme.kr",
 				"ws://localhost"
-	        ));
-	        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-	        configuration.setAllowCredentials(true);
+		));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		configuration.setAllowCredentials(true);
 
-	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	        source.registerCorsConfiguration("/**", configuration);
-	        return source;
-	    }
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 	@Bean
 	public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
 		return new HttpSessionOAuth2AuthorizationRequestRepository();
 	}
 
-//파비콘 추가
+	//파비콘 추가
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/favicon.ico")
 				.addResourceLocations("classpath:/static/");
@@ -140,5 +140,5 @@ public class SecurityConfig {
 	public CorsFilter corsFilter() {
 		return new CorsFilter(corsConfigurationSource());
 	}
-	   
-	}
+
+}

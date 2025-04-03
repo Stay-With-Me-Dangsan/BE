@@ -9,9 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import stay.with.me.common.ResponseStatus;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 
 @Slf4j
@@ -31,8 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = resolveToken(request);
 
-        if (accessToken == null || accessToken.isEmpty()) {
-            log.warn("Authorization 헤더가 없음. 인증 없이 API를 실행합니다.");
+        if (accessToken == null || accessToken.isEmpty() ) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -42,42 +44,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Authentication auth = jwtTokenProvider.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {
-                log.error("JWT 토큰이 만료됨: " + accessToken);
+                log.error("JWT 토큰이 유효하지 않음");
+
             }
-        } catch (MalformedJwtException e) {
-            log.error("잘못된 JWT 형식: " + e.getMessage());
         } catch (ExpiredJwtException e) {
-            log.error("JWT 토큰이 만료됨");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Token Expired");
+            log.error("JWT 토큰이 만료됨: {}", e.getMessage());
+            sendJsonResponse(response, ResponseStatus.UNAUTHORIZED);
+            return;
+        } catch (MalformedJwtException e) {
+            log.error("잘못된 JWT 형식: {}", e.getMessage());
+            sendJsonResponse(response, ResponseStatus.BAD_REQUEST);
             return;
         }
+
 
         filterChain.doFilter(request, response);
     }
 
 
 
-    // HTTP Request 헤더로부터 토큰 추출
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken == null || bearerToken.trim().isEmpty()) {
-            log.error("Authorization 헤더가 없습니다.");
-            return null;
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            return token;
         }
+        return null;
+    }
 
-        if (!bearerToken.startsWith("Bearer ")) {
-            log.error("Bearer 형식이 아닌 Authorization 헤더가 감지됨: {}", bearerToken);
-            return null;
-        }
+    private void sendJsonResponse(HttpServletResponse response, ResponseStatus responseStatus) throws IOException {
+        response.setStatus(responseStatus.getCode());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-        String token = bearerToken.substring(7);
-
-        // 🔥 JWT 형식 검증 (Header.Payload.Signature)
-        if (token.split("\\.").length != 3) {
-            log.error("잘못된 JWT 토큰 형식입니다: {}", token);
-            return null;
-        }
-
-        return token;
+        PrintWriter out = response.getWriter();
+        out.print("{ \"status\": " + responseStatus.getCode() + ", \"message\": \"" + responseStatus.getMessage() + "\" }");
+        out.flush();
     }
 }

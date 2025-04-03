@@ -54,6 +54,18 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/oauthReg")
+    public ResponseEntity<ResponseDto> OuathReg(@RequestBody UserDto userDto) {
+
+        int createdRow = userService.updateOuathReg(userDto);
+
+        if (createdRow != 1) {
+            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "간편가입실패", null, HttpStatus.BAD_REQUEST);
+        }
+
+        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "간편가입성공", null, HttpStatus.OK);
+    }
+
     @PostMapping("/signIn")
     public ResponseEntity<ResponseDto> login(@RequestBody(required = false) LoginDTO loginDto, HttpServletResponse response) {
         try {
@@ -72,9 +84,12 @@ public class UserController {
         }
     }
 
+
+
     @GetMapping("/mypage/{userId}")
-    public ResponseEntity<ResponseDto> getUserProfile(@PathVariable Long userId) {
+    public ResponseEntity<ResponseDto> getUserProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
+            Long userId = userDetails.getUserId();
             UserDto userDto = userService.getUserById(userId);
 
             if(userDto == null ){
@@ -153,7 +168,7 @@ public class UserController {
 
     }
 
-    @PatchMapping("/updateNickname")
+    @PatchMapping("/mypage/updateNickname")
     public ResponseEntity<ResponseDto> updateNickname(@RequestBody UserDto userDto) {
 
         int createdRow = userService.updateNickname(userDto);
@@ -165,7 +180,7 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "닉네임 변경 성공", null, HttpStatus.OK);
     }
 
-    @PatchMapping("/updateEmail")
+    @PatchMapping("/mypage/updateEmail")
     public ResponseEntity<ResponseDto> updateEmail(@RequestBody UserDto userDto) throws Exception {
 
         int createdRow = userService.updateEmail(userDto);
@@ -178,7 +193,7 @@ public class UserController {
     }
 
 
-    @PatchMapping("/updatePw")
+    @PatchMapping("/mypage/updatePw")
     public ResponseEntity<ResponseDto> updatePw(@RequestBody UserDto userDto) {
 
         int createdRow = userService.updatePw(userDto);
@@ -200,17 +215,19 @@ public class UserController {
             if (authentication == null || !authentication.isAuthenticated()) {
                 return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "로그인이 필요합니다.", null, HttpStatus.UNAUTHORIZED);
             }
-
+            if (userDetails == null) {
+                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "인증 정보가 없습니다.", null, HttpStatus.UNAUTHORIZED);
+            }
 
             Long userId = userDetails.getUserId();
-
             if (userId == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "사용자를 찾을 수 없습니다.", null, HttpStatus.NOT_FOUND);
             }
-
+            try {
             userService.logoutUser(userId, response);
-
-            SecurityContextHolder.clearContext();
+            } finally {
+                SecurityContextHolder.clearContext();
+            }
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "로그아웃 성공", null, HttpStatus.OK);
         } catch (Exception e) {
@@ -255,6 +272,7 @@ public class UserController {
             return ResponseUtil.buildResponse( ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(),null, HttpStatus.INTERNAL_SERVER_ERROR );
         }
     }
+
 }
 
 

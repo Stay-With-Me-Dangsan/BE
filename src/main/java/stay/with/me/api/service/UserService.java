@@ -15,6 +15,8 @@ public interface UserService {
 
     UserDto getUserById(Long userId);
 
+    int updateOuathReg(UserDto userDto);
+
     int updateNickname(UserDto userDto);
 
     int updateEmail(UserDto userDto) throws Exception;
@@ -27,7 +29,6 @@ public interface UserService {
     UserInfoDto findEmail(UserInfoDto userInfoDto);
 
     boolean sendTemporaryPassword(String email);
-
 
     void deleteUser(Long userId) throws Exception;
 
