@@ -58,6 +58,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
             redisService.saveChat(chat, roomId);
         } else {
             session.sendMessage(new PongMessage(ByteBuffer.wrap("pong".getBytes())));
+            System.out.println("pong!");
         }
     }
 
