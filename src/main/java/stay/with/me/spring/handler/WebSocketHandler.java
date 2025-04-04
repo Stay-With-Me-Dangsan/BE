@@ -56,6 +56,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
+
         if (roomId == null) {
             log.warn("roomId is missing!");
             session.close(CloseStatus.BAD_DATA);
@@ -72,6 +73,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
+        log.info("Connection Closed, roomId: {}, reason: {}, code: {}", roomId, status.getReason(), status.getCode());
         if (roomId == null) return;
 
         chatRooms.getOrDefault(roomId, new ArrayList<>()).remove(session);
