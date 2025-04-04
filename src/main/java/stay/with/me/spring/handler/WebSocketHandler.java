@@ -6,12 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.PongMessage;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import stay.with.me.api.model.dto.CommunityDto;
 import stay.with.me.api.service.RedisService;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +56,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
             chat.setMsg(msg);
             chat.setDistrict(roomId);
             redisService.saveChat(chat, roomId);
+        } else {
+            session.sendMessage(new PongMessage(ByteBuffer.wrap("pong".getBytes())));
         }
     }
 
