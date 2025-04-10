@@ -1,8 +1,9 @@
 package stay.with.me.spring.handler;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -27,8 +28,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("Received message: " + payload);
+        ObjectMapper objectMapper = new ObjectMapper();
+        TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
+        Map<String, Object> map = objectMapper.readValue(payload, typeReference);
+        String msg = (String) map.get("msg");
+        TextMessage sessMsg = new TextMessage(msg);
+        String userId = (String) map.get("userId");
 
         // 세션에서 채팅방 ID 가져오기
         String roomId = getRoomIdFromSession(session);
@@ -36,13 +41,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // 채팅방에 속한 모든 세션에 메시지 전송
         for (WebSocketSession sess : chatRooms.getOrDefault(roomId, new ArrayList<>())) {
-            sess.sendMessage(message);
+            sess.sendMessage(sessMsg);
         }
 
         // redis 데이터 저장
         CommunityDto chat = new CommunityDto();
         chat.setUserId(userId);
-        chat.setMsg(payload);
+        chat.setMsg(msg);
         chat.setDistrict(roomId);
         redisService.saveChat(chat, roomId);
     }
@@ -51,12 +56,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String roomId = getRoomIdFromSession(session);
+
         if (roomId == null) {
             log.warn("roomId is missing!");
             session.close(CloseStatus.BAD_DATA);
             return;
         }
-
 
         chatRooms.putIfAbsent(roomId, new ArrayList<>());
         chatRooms.get(roomId).add(session);
@@ -68,6 +73,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String roomId = getRoomIdFromSession(session);
+        log.info("Connection Closed, roomId: {}, reason: {}, code: {}", roomId, status.getReason(), status.getCode());
         if (roomId == null) return;
 
         chatRooms.getOrDefault(roomId, new ArrayList<>()).remove(session);

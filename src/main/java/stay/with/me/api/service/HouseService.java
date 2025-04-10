@@ -2,6 +2,7 @@ package stay.with.me.api.service;
 
 import stay.with.me.api.model.dto.ClusterWithHousesDto;
 import stay.with.me.api.model.dto.HouseDetailDto;
+import stay.with.me.api.model.dto.HouseFileDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 
 import java.math.BigDecimal;
@@ -21,6 +22,8 @@ public interface HouseService {
     int createMain(HouseMainDto param) throws Exception;
 
     int createDetail(HouseDetailDto param) throws Exception;
+
+    void createFile(HouseFileDto param) throws Exception;
 
     int updateDetail(HouseDetailDto param) throws Exception;
 

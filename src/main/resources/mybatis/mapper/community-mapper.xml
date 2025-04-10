@@ -17,7 +17,7 @@
     </select>
 
     <insert id="savePostgresChat" parameterType="java.util.List">
-        INSERT INTO house_community (chatId, userId, district, msg, msgDt)
+        INSERT INTO house_community (house_community_id, created_by, district, house_community_content, created_at)
         VALUES
         <foreach collection="list" item="item" separator=",">
             (#{item.chatId}, #{item.userId}, #{item.district}, #{item.msg}, CURRENT_TIMESTAMP)

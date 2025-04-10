@@ -171,7 +171,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     // 로그아웃 및 리프레시 토큰 삭제 처리
     public void logoutUser(Long userId, HttpServletResponse response) {
         userMapper.deleteRefreshToken(userId);

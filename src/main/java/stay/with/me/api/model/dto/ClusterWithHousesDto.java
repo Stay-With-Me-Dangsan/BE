@@ -15,4 +15,5 @@ public class ClusterWithHousesDto {
     private BigDecimal lng;
     private Long count;
     private List<HouseDetailDto> houses;
+
 }

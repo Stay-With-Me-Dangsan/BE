@@ -30,4 +30,5 @@ public class HouseDetailDto {
     private int floor;
     private int maintenance;
     private int management;
+    
 }

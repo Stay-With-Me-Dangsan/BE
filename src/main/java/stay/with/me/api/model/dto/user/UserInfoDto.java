@@ -16,5 +16,4 @@ public class UserInfoDto {
     private String nickname;
     private String birth;
     private LocalDate createdDate;
-
 }
