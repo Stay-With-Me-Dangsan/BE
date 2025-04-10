@@ -19,6 +19,16 @@
         <result property="coordinates" column="coordinates" typeHandler="stay.with.me.spring.mybatis.PGPointTypeHandler" />
         <result property="createdBy" column="created_by" />
     </resultMap>
+    <resultMap id="ClusterWithHousesMap" type="stay.with.me.api.model.dto.ClusterWithHousesDto">
+        <result property="lat" column="lat" />
+        <result property="lng" column="lng" />
+        <result property="count" column="count" />
+        <collection
+                property="houses"
+                ofType="stay.with.me.api.model.dto.HouseDetailDto"
+                select="getHousesByRoundedLocation"
+                column="{lat=lat, lng=lng}" />
+    </resultMap>
 
     <select id="getMain" parameterType="int" resultType="stay.with.me.api.model.dto.HouseMainDto">
         SELECT *
@@ -32,7 +42,7 @@
         WHERE house_detail_id = #{houseDetailId}
     </select>
 
-    <select id="getDetails" parameterType="int" resultMap="houseDetailResultMap">
+    <select id="getDetails" parameterType="double" resultMap="houseDetailResultMap">
         SELECT *
         FROM house_detail
         WHERE coordinates <![CDATA[ <@ ]]> BOX(POINT(#{minX}, #{minY}), POINT(#{maxX}, #{maxY}))
@@ -173,4 +183,25 @@
         DELETE FROM house_detail
         WHERE house_detail_id = #{houseDetailId}
     </delete>
+
+
+    <select id="getClusterWithHouses" resultMap="ClusterWithHousesMap">
+        SELECT
+            ROUND(coordinates[0]::numeric, 3) AS lng,
+            ROUND(coordinates[1]::numeric, 3) AS lat,
+            COUNT(*) AS count
+        FROM house_detail
+        GROUP BY ROUND(coordinates[0]::numeric, 3), ROUND(coordinates[1]::numeric, 3)
+    </select>
+
+    <select id="getHousesByRoundedLocation" resultMap="houseDetailResultMap">
+        SELECT *
+        FROM house_detail
+        WHERE
+            ROUND(coordinates[0]::numeric, 3) = #{lng}
+          AND ROUND(coordinates[1]::numeric, 3) = #{lat}
+    </select>
+
+
+
 </mapper>

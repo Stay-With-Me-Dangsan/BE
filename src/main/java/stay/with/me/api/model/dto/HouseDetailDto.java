@@ -27,5 +27,7 @@ public class HouseDetailDto {
     private LocalDate shareEndDate;
     private PGpoint coordinates;
     private String createdBy;
-
+    private int floor;
+    private int maintenance;
+    private int management;
 }

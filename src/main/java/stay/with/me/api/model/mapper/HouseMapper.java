@@ -1,9 +1,12 @@
 package stay.with.me.api.model.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import stay.with.me.api.model.dto.ClusterWithHousesDto;
 import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +17,7 @@ public interface HouseMapper {
 
     HouseDetailDto getDetail(int houseDetailId);
 
-    List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY);
+    List<HouseDetailDto> getDetails(double  minX, double  minY, double  maxX, double  maxY);
 
     List<Integer> getDetailsByCondition(Map<String, Object> param);
 
@@ -25,4 +28,9 @@ public interface HouseMapper {
     int updateDetail(HouseDetailDto param);
 
     boolean deleteDetail(int houseDetailId);
+
+    List<ClusterWithHousesDto> getClusterWithHouses();
+
+    List<HouseDetailDto> getHousesByRoundedLocation(@Param("lat") BigDecimal lat,@Param("lat")BigDecimal lng);
+
 }

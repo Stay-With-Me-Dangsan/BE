@@ -2,6 +2,7 @@ package stay.with.me.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import stay.with.me.api.model.dto.ClusterWithHousesDto;
 import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 import stay.with.me.api.model.mapper.HouseMapper;
@@ -27,7 +28,7 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception {
+    public List<HouseDetailDto> getDetails(double  minX, double  minY, double  maxX, double  maxY) throws Exception {
         return houseMapper.getDetails(minX, minY, maxX, maxY);
     }
 
@@ -56,4 +57,9 @@ public class HouseServiceImpl implements HouseService {
     public boolean deleteDetail(int houseDetailId) throws Exception {
         return houseMapper.deleteDetail(houseDetailId);
     }
+    @Override
+    public List<ClusterWithHousesDto> getClusteredHouses() throws Exception{
+        return houseMapper.getClusterWithHouses();
+    }
+
 }

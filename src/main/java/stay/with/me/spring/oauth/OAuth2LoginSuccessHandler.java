@@ -1,6 +1,5 @@
 package stay.with.me.spring.oauth;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +46,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
             String redirectUrl;
             boolean isNewUser = userDto.getBirth() == null || userDto.getGender() == null;
-            String accessToken = jwtTokenProvider.createAccessToken(userId, isNewUser);
+            String accessToken = jwtTokenProvider.createAccessToken(userId, isNewUser, userDto.getRole());
 
             if (isNewUser) {
-                redirectUrl = "https://staywithme.kr/oauth/register/" + provider + "?accessToken=" + accessToken;
+                redirectUrl = "http://localhost:3000/oauth/register/" + provider + "?accessToken=" + accessToken;
             } else {
-               redirectUrl = "https://staywithme.kr/oauth/success/" + provider + "?accessToken=" + accessToken;
+               redirectUrl = "http://localhost:3000/oauth/success/" + provider + "?accessToken=" + accessToken;
             }
 
 

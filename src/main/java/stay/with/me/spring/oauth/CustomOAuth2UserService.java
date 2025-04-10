@@ -78,6 +78,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         } else {
             userId = existingUser.getUserId();
+            nickname = existingUser.getNickname();
+            gender = existingUser.getGender();
+            birth = existingUser.getBirth();
         }
 
         boolean isAlreadyOauth = userMapper.existsOauthUser(provider, providerId);

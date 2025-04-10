@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import stay.with.me.api.model.dto.ClusterWithHousesDto;
 import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.HouseMainDto;
 import stay.with.me.api.model.dto.ResponseDto;
@@ -13,7 +14,7 @@ import stay.with.me.common.ResponseStatus;
 
 import java.util.List;
 import java.util.Map;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/house")
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class HouseController {
     }
 
     @GetMapping("/getDetails")
-    public ResponseEntity<ResponseDto> getDetails(@RequestParam("minX") int minX, @RequestParam("minY") int minY, @RequestParam("maxX") int maxX, @RequestParam("maxY") int maxY) {
+    public ResponseEntity<ResponseDto> getDetails(@RequestParam("minX") double minX, @RequestParam("minY") double  minY, @RequestParam("maxX") double  maxX, @RequestParam("maxY") double  maxY) {
         try {
             List<HouseDetailDto> list = houseService.getDetails(minX, minY, maxX, maxY);
 
@@ -135,6 +136,23 @@ public class HouseController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/clustered")
+    public ResponseEntity<ResponseDto> getClusteredHouses() throws Exception {
+        try {
+        List<ClusterWithHousesDto> list = houseService.getClusteredHouses();
+
+        if(list.size() < 1) {
+            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+        }
+            Map<String, Object> data = Map.of("result", list);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
 
 }
 

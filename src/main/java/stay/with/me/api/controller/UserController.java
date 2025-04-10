@@ -26,7 +26,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
@@ -80,27 +80,8 @@ public class UserController {
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-
-    @GetMapping("/mypage/{userId}")
-    public ResponseEntity<ResponseDto> getUserProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Long userId = userDetails.getUserId();
-            UserDto userDto = userService.getUserById(userId);
-
-            if(userDto == null ){
-                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
-            }
-            Map<String, Object> data = Map.of("user", userDto);
-
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(),"사용자 정보 조회 성공", data, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(),
-                    e.getMessage(), null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -108,6 +89,7 @@ public class UserController {
     @PostMapping("/emailCodeSend")
     public ResponseEntity<ResponseDto> sendVerificationCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+
 
         if (email == null || email.isEmpty()) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "이메일을 입력하세요.", null, HttpStatus.BAD_REQUEST);
@@ -166,6 +148,28 @@ public class UserController {
         }
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "임시 비밀번호가 이메일로 전송되었습니다.", null, HttpStatus.OK);
 
+    }
+    @GetMapping("/mypage/{userId}")
+    public ResponseEntity<ResponseDto> getUserProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        try {
+
+            if (userDetails == null) {
+                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(),"로그인이 필요합니다.", null, HttpStatus.NOT_FOUND);
+            }
+
+            Long userId = userDetails.getUserId();
+            UserDto userDto = userService.getUserById(userId);
+
+            if(userDto == null ){
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("user", userDto);
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(),"사용자 정보 조회 성공", data, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(),
+                    e.getMessage(), null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PatchMapping("/mypage/updateNickname")

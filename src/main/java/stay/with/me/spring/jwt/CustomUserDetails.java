@@ -42,15 +42,7 @@ public class CustomUserDetails implements UserDetails {
 
     }
 
-    public String getRole() {
-        return role;
-    }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    // ✅ userId getter 추가
     public Long getUserId() {
         return userId;
     }
@@ -66,27 +58,6 @@ public class CustomUserDetails implements UserDetails {
         return email;
     }
 
-    public String getNickname () {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-    public String getGender () {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-    public String getBirth () {
-        return birth;
-    }
-
-    public void setBirth(String birth) {
-        this.birth = birth;
-    }
     /*
      * 아래의 정보들은 DB에 테이블을 따로 두어 관리할 수 있지만
      * 현재 어플리케이션에서는 사용하지 않을 기능들이기 때문에 전부 true를 리턴한다
