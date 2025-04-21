@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--suppress ALL -->
+<mapper namespace="stay.with.me.api.model.mapper.AdminMapper">
+    <resultMap id="userResultMap" type="stay.with.me.api.model.dto.user.UserInfoDto">
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="gender" column="gender"/>
+        <result property="birth" column="birth"/>
+    </resultMap>
+
+    <select id="getUserList" resultType="stay.with.me.api.model.dto.user.UserInfoDto">
+        SELECT user_id, email, nickname, birth, gender, created_date, provider
+        FROM USERS
+    </select>
+
+
+
+</mapper>

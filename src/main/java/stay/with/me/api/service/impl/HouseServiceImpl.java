@@ -1,6 +1,7 @@
 package stay.with.me.api.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import stay.with.me.api.model.dto.ClusterWithHousesDto;
 import stay.with.me.api.model.dto.HouseDetailDto;
@@ -12,6 +13,8 @@ import stay.with.me.api.service.HouseService;
 import java.util.List;
 import java.util.Map;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HouseServiceImpl implements HouseService {
@@ -64,8 +67,38 @@ public class HouseServiceImpl implements HouseService {
         return houseMapper.deleteDetail(houseDetailId);
     }
     @Override
-    public List<ClusterWithHousesDto> getClusteredHouses() throws Exception{
-        return houseMapper.getClusterWithHouses();
+    public List<ClusterWithHousesDto> getMainClusteredHouses() throws Exception{
+        return houseMapper.getMainClusterWithHouses();
+    }
+
+    @Override
+    public List<ClusterWithHousesDto> getClusteredHouses(double  minX, double  minY, double  maxX, double  maxY) throws Exception{
+        try {
+            log.info("🔍 getClusteredHouses() 호출됨 - 클러스터 하우스 조회 시작");
+
+            List<ClusterWithHousesDto> result = houseMapper.getClusterWithHouses(minX, minY, maxX, maxY);
+
+            log.info("✅ 클러스터 조회 성공: {}건", result.size());
+
+            return result;
+        } catch (Exception e) {
+            log.error("❌ 클러스터 하우스 조회 중 예외 발생", e);
+            throw e; // 혹은 커스텀 예외로 감싸도 됨
+        }
+    }
+    @Override
+    public List<HouseDetailDto> getHousesByUserId(Long userId) throws Exception {
+        return houseMapper.getHousesByUserId(userId);
+    }
+
+    @Override
+    public List<HouseDetailDto> getMarkedHouse(Long userId) throws Exception {
+        return houseMapper.getMarkedHouse(userId);
+    }
+
+    @Override
+    public List<HouseDetailDto> getRecentView(Long userId) throws Exception {
+        return houseMapper.getRecentView(userId);
     }
 
 }

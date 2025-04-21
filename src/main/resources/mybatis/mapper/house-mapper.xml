@@ -18,6 +18,7 @@
         <result property="shareEndDate" column="share_end_date" />
         <result property="coordinates" column="coordinates" typeHandler="stay.with.me.spring.mybatis.PGPointTypeHandler" />
         <result property="createdBy" column="created_by" />
+        <result property="houseFilePath" column="house_file_path"/>
     </resultMap>
     <resultMap id="ClusterWithHousesMap" type="stay.with.me.api.model.dto.ClusterWithHousesDto">
         <result property="lat" column="lat" />
@@ -210,23 +211,74 @@
     </delete>
 
 
-    <select id="getClusterWithHouses" resultMap="ClusterWithHousesMap">
+    <select id="getMainClusterWithHouses" resultMap="ClusterWithHousesMap">
         SELECT
             ROUND(coordinates[0]::numeric, 3) AS lng,
             ROUND(coordinates[1]::numeric, 3) AS lat,
             COUNT(*) AS count
         FROM house_detail
         GROUP BY ROUND(coordinates[0]::numeric, 3), ROUND(coordinates[1]::numeric, 3)
+        ORDER BY count DESC
+            LIMIT 1
     </select>
 
-    <select id="getHousesByRoundedLocation" resultMap="houseDetailResultMap">
-        SELECT *
+
+    <select id="getClusterWithHouses" resultMap="ClusterWithHousesMap">
+        SELECT
+            ROUND(coordinates[0]::numeric, 3) AS lng,
+            ROUND(coordinates[1]::numeric, 3) AS lat,
+            COUNT(*) AS count
         FROM house_detail
         WHERE
-            ROUND(coordinates[0]::numeric, 3) = #{lng}
-          AND ROUND(coordinates[1]::numeric, 3) = #{lat}
+            coordinates[0] BETWEEN #{minX} AND #{maxX}
+          AND coordinates[1] BETWEEN #{minY} AND #{maxY}
+        GROUP BY
+            ROUND(coordinates[0]::numeric, 3),
+            ROUND(coordinates[1]::numeric, 3)
     </select>
 
 
+
+    <select id="getHousesByRoundedLocation" resultMap="houseDetailResultMap">
+        SELECT
+            hd.*,
+            hf.house_file_path
+        FROM house_detail hd
+                 LEFT JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
+        WHERE
+            ROUND(hd.coordinates[0]::numeric, 3) = #{lng}
+          AND ROUND(hd.coordinates[1]::numeric, 3) = #{lat}
+    </select>
+
+    <select id="getHousesByUserId">
+        SELECT hd.*,
+               hf.house_file_path
+        FROM house_detail hd
+                 LEFT JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
+        WHERE user_id = #{userId}
+            LIMIT 10;
+    </select>
+<select id="getMarkedHouse">
+    SELECT hd.*,
+           hf.house_file_path
+    FROM house_detail hd
+             JOIN house_bookmark hb ON hb.house_detail_id = hd.house_detail_id
+             JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
+    WHERE hb.user_id =  #{userId}
+      AND hb.is_deleted = false;
+
+</select>
+
+<select id="getRecentView">
+    SELECT hd.*,
+           hf.house_file_path
+    FROM house_detail hd
+             JOIN house_view_history hvh ON hvh.house_detail_id = hd.house_detail_id
+             JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
+    WHERE hvh.user_id = #{userId}
+    ORDER BY hvh.viewed_at DESC
+        LIMIT 10;
+
+</select>
 
 </mapper>

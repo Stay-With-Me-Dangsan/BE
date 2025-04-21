@@ -14,11 +14,28 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/commonCode")
+@RequestMapping("/api/commonCode")
 @RequiredArgsConstructor
 public class CommonCodeController {
 
     private final CommonCodeService commonCodeService;
+
+    @GetMapping("/list")
+    public ResponseEntity<ResponseDto> getList() {
+        try {
+            List<CommonCodeDto> dto = commonCodeService.getList();
+
+            if(dto == null) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", dto);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
     @GetMapping("/get")
     public ResponseEntity<ResponseDto> get(@RequestParam("groupId") String groupId, @RequestParam("key") String key) {

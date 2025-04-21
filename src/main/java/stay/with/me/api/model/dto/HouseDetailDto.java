@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.postgresql.geometric.PGpoint;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +30,7 @@ public class HouseDetailDto {
     private PGpoint coordinates;
     private String createdBy;
     private int floor;
-    private int maintenance;
+    private BigDecimal maintenance;
     private int management;
-    
+    private String houseFilePath;
 }

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/house")
+@RequestMapping("/api/house")
 @RequiredArgsConstructor
 public class HouseController {
 
@@ -137,10 +137,10 @@ public class HouseController {
         }
     }
 
-    @GetMapping("/clustered")
-    public ResponseEntity<ResponseDto> getClusteredHouses() throws Exception {
+    @GetMapping("/Main/clustered")
+    public ResponseEntity<ResponseDto> getMainClusteredHouses() throws Exception {
         try {
-        List<ClusterWithHousesDto> list = houseService.getClusteredHouses();
+        List<ClusterWithHousesDto> list = houseService.getMainClusteredHouses();
 
         if(list.size() < 1) {
             return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
@@ -152,7 +152,21 @@ public class HouseController {
         }
 
     }
+    @GetMapping("/clustered")
+    public ResponseEntity<ResponseDto> getClusteredHouses(@RequestParam("minX") double minX, @RequestParam("minY") double  minY, @RequestParam("maxX") double  maxX, @RequestParam("maxY") double  maxY) throws Exception {
+        try {
+            List<ClusterWithHousesDto> list = houseService.getClusteredHouses(minX, minY, maxX, maxY);
 
+            if(list.size() < 1) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", list);
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 
 }
 

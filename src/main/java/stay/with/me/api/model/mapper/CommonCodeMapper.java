@@ -8,6 +8,8 @@ import java.util.List;
 @Mapper
 public interface CommonCodeMapper {
 
+    List<CommonCodeDto> getList();
+
     List<CommonCodeDto> get(String groupId, String key);
 
     int create(CommonCodeDto param);
@@ -15,4 +17,6 @@ public interface CommonCodeMapper {
     int update(CommonCodeDto param);
 
     boolean delete(int commonCodeId);
+
+
 }

@@ -32,8 +32,16 @@ public interface HouseMapper {
 
     boolean deleteDetail(int houseDetailId);
 
-    List<ClusterWithHousesDto> getClusterWithHouses();
+
+    List<ClusterWithHousesDto> getMainClusterWithHouses();
+
+    List<ClusterWithHousesDto> getClusterWithHouses(double  minX, double  minY, double  maxX, double  maxY);
 
     List<HouseDetailDto> getHousesByRoundedLocation(@Param("lat") BigDecimal lat,@Param("lat")BigDecimal lng);
 
+    List<HouseDetailDto> getRecentView(Long userId);
+
+    List<HouseDetailDto> getMarkedHouse(Long userId);
+
+    List<HouseDetailDto> getHousesByUserId(Long userId);
 }
