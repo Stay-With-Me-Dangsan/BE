@@ -13,7 +13,7 @@ public interface HouseService {
 
     HouseDetailDto getDetail(int houseDetailId) throws Exception;
 
-    List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception;
+    List<HouseDetailDto> getDetails(float minX, float minY, float maxX, float maxY) throws Exception;
 
     List<Integer> getDetailsByCondition(Map<String, Object> param) throws Exception;
 

@@ -32,7 +32,7 @@
         WHERE house_detail_id = #{houseDetailId}
     </select>
 
-    <select id="getDetails" parameterType="int" resultMap="houseDetailResultMap">
+    <select id="getDetails" parameterType="float" resultMap="houseDetailResultMap">
         SELECT *
         FROM house_detail
         WHERE coordinates <![CDATA[ <@ ]]> BOX(POINT(#{minX}, #{minY}), POINT(#{maxX}, #{maxY}))

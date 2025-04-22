@@ -28,7 +28,7 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY) throws Exception {
+    public List<HouseDetailDto> getDetails(float minX, float minY, float maxX, float maxY) throws Exception {
         return houseMapper.getDetails(minX, minY, maxX, maxY);
     }
 

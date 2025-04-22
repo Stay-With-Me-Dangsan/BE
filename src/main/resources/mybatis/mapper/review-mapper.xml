@@ -4,17 +4,36 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="stay.with.me.api.model.mapper.HouseReviewMapper">
     <select id="get" resultType="stay.with.me.api.model.dto.HouseReviewDto">
-        SELECT *
-          FROM house_review
+        SELECT r.review_id,
+               r.house_detail_id,
+               d.house_description as house_detail_desc,
+               r.star,
+               r.review_detail,
+               r.created_by,
+               r.created_at
+          FROM house_review r
+    INNER JOIN house_detail d
+            ON r.house_detail_id = d.house_detail.id
          WHERE 1 = 1
-           AND review_id = #{reviewId}
+           AND r.review_id = #{reviewId}
     </select>
 
     <select id="getList" resultType="stay.with.me.api.model.dto.HouseReviewDto">
-        SELECT *
-          FROM house_review
+        SELECT r.review_id,
+               r.house_detail_id,
+               d.house_description as house_detail_desc,
+               r.star,
+               r.review_detail,
+               r.created_by,
+               r.created_at
+          FROM house_review r
+    INNER JOIN house_detail d
+            ON r.house_detail_id = d.house_detail_id
          WHERE 1 = 1
-           AND house_detail_id = #{houseDetailId}
+        AND r.house_detail_id IN
+        <foreach collection="houseDetailIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <insert id="create" parameterType="stay.with.me.api.model.dto.HouseReviewDto">

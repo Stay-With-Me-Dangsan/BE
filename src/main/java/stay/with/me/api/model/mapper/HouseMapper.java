@@ -15,7 +15,7 @@ public interface HouseMapper {
 
     HouseDetailDto getDetail(int houseDetailId);
 
-    List<HouseDetailDto> getDetails(int minX, int minY, int maxX, int maxY);
+    List<HouseDetailDto> getDetails(float minX, float minY, float maxX, float maxY);
 
     List<Integer> getDetailsByCondition(Map<String, Object> param);
 

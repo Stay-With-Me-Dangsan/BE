@@ -11,6 +11,7 @@ public class HouseReviewDto {
 
     private int reviewId;
     private int houseDetailId;
+    private String houseDetailDesc;
     private int star;
     private String reviewDetail;
     private String createdBy;

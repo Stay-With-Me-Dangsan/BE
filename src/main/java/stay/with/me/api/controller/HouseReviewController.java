@@ -10,8 +10,10 @@ import stay.with.me.api.service.HouseReviewService;
 import stay.with.me.common.ResponseStatus;
 import stay.with.me.common.util.ResponseUtil;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/review")
@@ -21,7 +23,7 @@ public class HouseReviewController {
     private final HouseReviewService houseReviewService;
 
     @GetMapping("/get")
-    public ResponseEntity<ResponseDto> get(@RequestParam("reviewId") int reviewId) {
+    public ResponseEntity<ResponseDto> get(@RequestParam("REVIEW") int reviewId) {
         try {
             HouseReviewDto dto = houseReviewService.get(reviewId);
             if(dto == null) {
@@ -35,9 +37,10 @@ public class HouseReviewController {
     }
 
     @GetMapping("/getList")
-    public ResponseEntity<ResponseDto> getList(@RequestParam("houseDetailId") int houseDetailId) {
+    public ResponseEntity<ResponseDto> getList(@RequestParam("DETAIL") List<Integer> houseDetailId) {
         try {
-            List<HouseReviewDto> list = houseReviewService.getList(houseDetailId);
+            Set<Integer> houseDetailIds = new HashSet<>(houseDetailId);
+            List<HouseReviewDto> list = houseReviewService.getList(houseDetailIds);
             if(list.size() < 1) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
             }

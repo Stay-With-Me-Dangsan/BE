@@ -7,6 +7,7 @@ import stay.with.me.api.model.mapper.HouseReviewMapper;
 import stay.with.me.api.service.HouseReviewService;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class HouseHouseReviewServiceImpl implements HouseReviewService {
     }
 
     @Override
-    public List<HouseReviewDto> getList(int houseDetailId) throws Exception {
-        return houseReviewMapper.getList(houseDetailId);
+    public List<HouseReviewDto> getList(Set<Integer> houseDetailIds) throws Exception {
+        return houseReviewMapper.getList(houseDetailIds);
     }
 
     @Override

@@ -52,7 +52,7 @@ public class HouseController {
     }
 
     @GetMapping("/getDetails")
-    public ResponseEntity<ResponseDto> getDetails(@RequestParam("minX") int minX, @RequestParam("minY") int minY, @RequestParam("maxX") int maxX, @RequestParam("maxY") int maxY) {
+    public ResponseEntity<ResponseDto> getDetails(@RequestParam("minX") float minX, @RequestParam("minY") float minY, @RequestParam("maxX") float maxX, @RequestParam("maxY") float maxY) {
         try {
             List<HouseDetailDto> list = houseService.getDetails(minX, minY, maxX, maxY);
 
