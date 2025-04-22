@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,9 +56,10 @@ public class JwtTokenProvider implements InitializingBean {
     }
 
     // JWT 토큰 생성
-    public String createAccessToken(Long userId, boolean isNewUser) {
+    public String createAccessToken(Long userId, boolean isNewUser, String role) {
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         claims.put("isNewUser", isNewUser);
+        claims.put("role", role);
         Date now = new Date();
 
         return Jwts.builder()
@@ -157,7 +157,11 @@ public class JwtTokenProvider implements InitializingBean {
         return null;
     }
     private Claims getClaims(String accessToken) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody();
     }
 
     public String getEmailFromToken(String token) {

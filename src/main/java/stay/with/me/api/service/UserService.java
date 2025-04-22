@@ -25,7 +25,6 @@ public interface UserService {
 
     TokenDto refreshAccessToken(String refreshToken, HttpServletResponse response);
 
-
     UserInfoDto findEmail(UserInfoDto userInfoDto);
 
     boolean sendTemporaryPassword(String email);

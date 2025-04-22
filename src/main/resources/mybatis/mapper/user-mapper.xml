@@ -107,11 +107,22 @@
 
 
     <update id="updateNickname" parameterType="UserDto">
-        UPDATE USERS
+        <!-- users 테이블 닉네임 변경 -->
+        UPDATE users
+        SET nickname = #{nickname}
+        WHERE user_id = #{userId};
+
+        <!-- social_user 테이블 닉네임 변경 -->
+        UPDATE social_user
+        SET nickname = #{nickname}
+        WHERE user_id = #{userId};
+    </update>
+
+    <update id="updateSocialNickname" parameterType="UserDto">
+        UPDATE social_user
         SET nickname = #{nickname}
         WHERE user_id = #{userId}
     </update>
-
     <update id="updateEmail" parameterType="UserDto">
         UPDATE USERS
         <set>
@@ -134,20 +145,16 @@
 
 
     <update id="updateRefreshToken" parameterType="stay.with.me.api.model.dto.user.UserDto">
-
-        UPDATE users
+        UPDATE USERS
         SET refresh_token = #{refreshToken},
             rt_expired_date = #{expiredAt}::timestamp
         WHERE user_id = #{userId}
     </update>
 
-
-    <delete id="deleteRefreshToken" parameterType="Long">
-        DELETE refresh_token, rt_expired_date
-        FROM USERS
+    <update id="deleteRefreshToken" parameterType="long">
+        UPDATE USERS
+        SET refresh_token = NULL
         WHERE user_id = #{userId}
-    </delete>
-
-
+    </update>
 
 </mapper>

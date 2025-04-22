@@ -3,6 +3,12 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="stay.with.me.api.model.mapper.CommonCodeMapper">
+    <select id="getList" resultType="stay.with.me.api.model.dto.CommonCodeDto">
+        SELECT *
+        FROM common_code
+    </select>
+
+
     <select id="get" resultType="stay.with.me.api.model.dto.CommonCodeDto">
         SELECT *
           FROM common_code

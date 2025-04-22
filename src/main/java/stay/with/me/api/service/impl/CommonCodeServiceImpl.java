@@ -15,6 +15,11 @@ public class CommonCodeServiceImpl implements CommonCodeService {
     private final CommonCodeMapper commonCodeMapper;
 
     @Override
+    public List<CommonCodeDto> getList() throws Exception {
+        return commonCodeMapper.getList();
+    }
+
+    @Override
     public List<CommonCodeDto> get(String groupId, String key) throws Exception {
         return commonCodeMapper.get(groupId, key);
     }

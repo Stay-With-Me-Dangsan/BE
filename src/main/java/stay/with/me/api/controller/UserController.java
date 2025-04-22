@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import stay.with.me.api.model.dto.HouseDetailDto;
 import stay.with.me.api.model.dto.ResponseDto;
 import stay.with.me.api.model.dto.user.LoginDTO;
 import stay.with.me.api.model.dto.user.TokenDto;
@@ -22,17 +23,17 @@ import stay.with.me.common.util.ResponseUtil;
 import stay.with.me.spring.jwt.CustomUserDetails;
 import stay.with.me.spring.jwt.JwtTokenProvider;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
     private final EmailService emailService;
     private final JwtTokenProvider jwtTokenProvider;
-
 
     @PostMapping("/signUp")
     public ResponseEntity<ResponseDto> signup(@RequestBody(required = false) UserDto userDto) {
@@ -76,31 +77,12 @@ public class UserController {
             }
 
 
-            Map<String, Object> data = Map.of("user", tokenDto);
+            Map<String, Object> data = Map.of("result", tokenDto);
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
+            e.printStackTrace();
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-
-
-    @GetMapping("/mypage/{userId}")
-    public ResponseEntity<ResponseDto> getUserProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Long userId = userDetails.getUserId();
-            UserDto userDto = userService.getUserById(userId);
-
-            if(userDto == null ){
-                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
-            }
-            Map<String, Object> data = Map.of("user", userDto);
-
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(),"사용자 정보 조회 성공", data, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(),
-                    e.getMessage(), null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -108,6 +90,7 @@ public class UserController {
     @PostMapping("/emailCodeSend")
     public ResponseEntity<ResponseDto> sendVerificationCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
+
 
         if (email == null || email.isEmpty()) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "이메일을 입력하세요.", null, HttpStatus.BAD_REQUEST);
@@ -119,7 +102,7 @@ public class UserController {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), "이메일 전송 실패", null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        Map<String, Object> data = Map.of("user", code);
+        Map<String, Object> data = Map.of("result", code);
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "이메일 코드 전송 완료", data, HttpStatus.OK);
     }
 
@@ -134,7 +117,7 @@ public class UserController {
 
         boolean isValid = emailService.verifyCode(email, code);
 
-        Map<String, Object> data = Map.of("user", isValid);
+        Map<String, Object> data = Map.of("result", isValid);
         return ResponseUtil.buildResponse(
                 isValid ? ResponseStatus.SUCCESS.getCode() : ResponseStatus.BAD_REQUEST.getCode(),
                 isValid ? "인증 성공" : "인증 실패",
@@ -150,7 +133,7 @@ public class UserController {
             if (user == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "등록된 이메일이 없습니다.", null, HttpStatus.NOT_FOUND);
             }
-            Map<String, Object> data = Map.of("user", user);
+            Map<String, Object> data = Map.of("result", user);
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -167,90 +150,6 @@ public class UserController {
         return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "임시 비밀번호가 이메일로 전송되었습니다.", null, HttpStatus.OK);
 
     }
-
-    @PatchMapping("/mypage/updateNickname")
-    public ResponseEntity<ResponseDto> updateNickname(@RequestBody UserDto userDto) {
-
-        int createdRow = userService.updateNickname(userDto);
-
-        if (createdRow != 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "닉네임 변경 실패", null, HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "닉네임 변경 성공", null, HttpStatus.OK);
-    }
-
-    @PatchMapping("/mypage/updateEmail")
-    public ResponseEntity<ResponseDto> updateEmail(@RequestBody UserDto userDto) throws Exception {
-
-        int createdRow = userService.updateEmail(userDto);
-
-        if (createdRow != 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "프로필 수정 실패", null, HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "프로필 수정 성공", null, HttpStatus.OK);
-    }
-
-
-    @PatchMapping("/mypage/updatePw")
-    public ResponseEntity<ResponseDto> updatePw(@RequestBody UserDto userDto) {
-
-        int createdRow = userService.updatePw(userDto);
-
-        if (createdRow != 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "프로필 수정 실패", null, HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "프로필 수정 성공", null, HttpStatus.OK);
-    }
-
-
-    @PostMapping("/logout")
-    public ResponseEntity<ResponseDto> logout(@AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) throws Exception {
-        try {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "로그인이 필요합니다.", null, HttpStatus.UNAUTHORIZED);
-            }
-            if (userDetails == null) {
-                return ResponseUtil.buildResponse(ResponseStatus.UNAUTHORIZED.getCode(), "인증 정보가 없습니다.", null, HttpStatus.UNAUTHORIZED);
-            }
-
-            Long userId = userDetails.getUserId();
-            if (userId == null) {
-                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), "사용자를 찾을 수 없습니다.", null, HttpStatus.NOT_FOUND);
-            }
-            try {
-            userService.logoutUser(userId, response);
-            } finally {
-                SecurityContextHolder.clearContext();
-            }
-
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "로그아웃 성공", null, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<ResponseDto> deleteUser(@PathVariable Long userId, @AuthenticationPrincipal CustomUserDetails userDetails, HttpServletResponse response) {
-        try {
-            if (!userId.equals(userDetails.getUserId())) {
-                return ResponseUtil.buildResponse(ResponseStatus.FORBIDDEN.getCode(), "권한이 없습니다.", null, HttpStatus.FORBIDDEN);
-            }
-
-            userService.logoutUser(userId, response); // ✅ 리프레시 토큰 삭제 및 로그아웃 처리
-            userService.deleteUser(userId);  // ✅ DB에서 유저 삭제
-
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "계정이 성공적으로 삭제되었습니다.", null, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @PostMapping("/refresh")
     public ResponseEntity<ResponseDto> refresh(HttpServletRequest request, HttpServletResponse response) throws Exception{
         try{
@@ -272,6 +171,7 @@ public class UserController {
             return ResponseUtil.buildResponse( ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(),null, HttpStatus.INTERNAL_SERVER_ERROR );
         }
     }
+
 
 }
 

@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
         //일반회원의 경우 gender, birth 무조건 기입
         boolean isNewUser = false;
 
-        String accessToken = jwtTokenProvider.createAccessToken(userDto.getUserId(), isNewUser);
+        String accessToken = jwtTokenProvider.createAccessToken(userDto.getUserId(), isNewUser, userDto.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(userDto.getUserId());
         LocalDateTime expiredAt = LocalDateTime.now().plusDays(7);
 
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
         boolean isNewUser = false;
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(userDto.getUserId(), isNewUser);
+        String newAccessToken = jwtTokenProvider.createAccessToken(userDto.getUserId(), isNewUser, userDto.getRole());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(userDto.getUserId());
 
 
@@ -130,6 +130,7 @@ public class UserServiceImpl implements UserService {
     public int updateNickname(UserDto userDto) {
         return userMapper.updateNickname(userDto);
     }
+
     @Override
     public int updateEmail(UserDto userDto) throws Exception {
 
@@ -168,7 +169,6 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(email, "StayWithMe 임시 비밀번호 발급", "임시 비밀번호는 " + tempPassword +"입니다 :)");
         return true;
     }
-
 
 
     // 로그아웃 및 리프레시 토큰 삭제 처리

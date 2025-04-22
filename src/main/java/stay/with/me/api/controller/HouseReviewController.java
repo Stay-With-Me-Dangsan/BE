@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/api/review")
 @RequiredArgsConstructor
 public class HouseReviewController {
 

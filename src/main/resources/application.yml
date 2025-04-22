@@ -77,9 +77,9 @@ mybatis:
 
 logging:
   level:
-    org.mybatis: DEBUG
-    org.apache.ibatis: DEBUG
-    org.springframework.web: DEBUG
+    org.mybatis: INFO
+    org.apache.ibatis: INFO
+    org.springframework.web: INFO
   file:
     name: app.log
     path: /apps/stay-with-me

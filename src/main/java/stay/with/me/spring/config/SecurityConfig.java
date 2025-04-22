@@ -71,7 +71,7 @@ public class SecurityConfig {
 				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
 				//.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
+				//.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
 				.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
 				//페이지 접근제한설정
@@ -80,7 +80,8 @@ public class SecurityConfig {
 								.permitAll()
 								.anyRequest()
 								.authenticated()
-				)
+				);
+		http.addFilterBefore(corsFilter(), CorsFilter.class)
 
 				/*oauth2 설정*/
 				.oauth2Login(oauth2 -> oauth2
@@ -107,14 +108,11 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 
-		configuration.setAllowedOriginPatterns(List.of(
+		configuration.setAllowedOrigins(List.of(
 				"http://localhost:3000",
-				"https://15.165.166.251",
-				"https://www.staywithme.kr",
-				"https://staywithme.kr",
-				"wss://staywithme.kr",
-				"ws://localhost"
+				"https://www.staywithme.kr"
 		));
+
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		configuration.setAllowCredentials(true);
 
