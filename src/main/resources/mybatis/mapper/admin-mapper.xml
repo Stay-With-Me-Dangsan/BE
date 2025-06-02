@@ -13,11 +13,43 @@
         <result property="birth" column="birth"/>
     </resultMap>
 
-    <select id="getUserList" resultType="stay.with.me.api.model.dto.user.UserInfoDto">
+    <select id="getAdminUserList" resultType="stay.with.me.api.model.dto.user.UserInfoDto">
         SELECT user_id, email, nickname, birth, gender, created_date, provider
         FROM USERS
     </select>
 
+    <select id="getAdminBoardList" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT
+            b.post_id,
+            b.title,
+            b.content,
+            b.board_type,
+            bf.board_file_path AS thumbnail,
+            COUNT(DISTINCT c.comment_id) AS commentCount,
+            COUNT(DISTINCT d.like_id)     AS likeCount
+        FROM board b
+                 LEFT JOIN comment c ON b.post_id = c.post_id
+                 LEFT JOIN board_like d ON b.post_id = d.post_id
+                 LEFT JOIN board_file bf ON b.post_id = bf.board_post_id AND bf.file_type = 'thumbnail'
+        WHERE b.board_type = #{category}::board_category
+        AND b.status = 1
+        GROUP BY b.post_id, b.title, b.content, b.board_type, bf.board_file_path
+        ORDER BY b.post_id DESC
+    </select>
+
+
+    <update id="updateBoardBlind" parameterType="java.util.List">
+        UPDATE board
+        SET status = 0
+        WHERE post_id IN
+        <foreach collection="list"
+                 item="id"
+                 open="("
+                 separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </update>
 
 
 </mapper>

@@ -3,7 +3,6 @@ package stay.with.me.api.service;
 import stay.with.me.api.model.dto.*;
 
 import java.util.List;
-import java.util.Map;
 
 public interface HouseService {
 
@@ -13,7 +12,7 @@ public interface HouseService {
 
     List<HouseDetailDto> getDetails(double  minX, double  minY, double  maxX, double  maxY) throws Exception;
 
-    List<Integer> getDetailsByCondition(Map<String, Object> param) throws Exception;
+    List<ClusterWithHousesDto> getDetailsByCondition(HouseFilterDto param) throws Exception;
 
     int createMain(HouseMainDto param) throws Exception;
 
@@ -27,12 +26,16 @@ public interface HouseService {
 
     List<ClusterWithHousesDto> getMainClusteredHouses() throws Exception;
 
-    List<ClusterWithHousesDto> getClusteredHouses(double  minX, double  minY, double  maxX, double  maxY) throws Exception;
+    List<ClusterWithHousesDto> getClusteredHouses( double minX, double minY, double maxX, double maxY, int precision) throws Exception;
 
     List<HouseDetailDto> getHousesByUserId(Long userId) throws Exception;
 
     List<HouseDetailDto> getMarkedHouse(Long userId)throws Exception;
 
-    List<HouseDetailDto> getRecentView(Long userId)throws Exception;
+    int plusBookMart(Long userId, int houseDetailId);
+
+    int minusBookMart(Long userId, int houseDetailId);
+
+    List<HouseDetailDto> getRecentView(Long userId) throws Exception;
 
 }

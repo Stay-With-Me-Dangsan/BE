@@ -14,5 +14,6 @@ public class ClusterWithHousesDto {
     private BigDecimal lat;
     private BigDecimal lng;
     private Long count;
+    private int precision;
     private List<HouseDetailDto> houses;
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="stay.with.me.api.model.mapper.UploadFilesMapper">
+
+    <select id="findAll" resultType="stay.with.me.api.model.dto.UploadFilesDTO">
+        SELECT * FROM board_file
+    </select>
+
+    <select id="findById" parameterType="long" resultType="stay.with.me.api.model.dto.UploadFilesDTO">
+        SELECT * FROM board_file WHERE upload_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="stay.with.me.api.model.dto.UploadFilesDTO">
+        INSERT INTO board_file (user_id, post_id, file_name, file_url, created_at)
+        VALUES (#{userId}, #{post_id}, #{fileName}, #{fileUrl}, NOW())
+    </insert>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM board_file WHERE upload_id = #{id}
+    </delete>
+</mapper>

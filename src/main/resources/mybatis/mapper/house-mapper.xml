@@ -24,12 +24,23 @@
         <result property="lat" column="lat" />
         <result property="lng" column="lng" />
         <result property="count" column="count" />
+        <result property="precision" column="precision"/>
         <collection
                 property="houses"
                 ofType="stay.with.me.api.model.dto.HouseDetailDto"
                 select="getHousesByRoundedLocation"
-                column="{lat=lat, lng=lng}" />
+                column="{lat=lat, lng=lng, precision=precision}" />
     </resultMap>
+
+    <select id="getHousesByRoundedLocation" resultType="stay.with.me.api.model.dto.HouseDetailDto">
+        SELECT hd.*,
+               hf.house_file_path
+        FROM house_detail hd
+                 LEFT JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
+        WHERE ROUND(coordinates[0]::numeric, #{precision}) = #{lng}
+          AND ROUND(coordinates[1]::numeric, #{precision}) = #{lat}
+    </select>
+
 
     <select id="getMain" parameterType="int" resultType="stay.with.me.api.model.dto.HouseMainDto">
         SELECT *
@@ -49,41 +60,110 @@
         WHERE coordinates <![CDATA[ <@ ]]> BOX(POINT(#{minX}, #{minY}), POINT(#{maxX}, #{maxY}))
     </select>
 
-    <select id="getDetailsByCondition" resultType="java.lang.Integer">
-        SELECT house_detail_id
-          FROM house_detail
-         WHERE 1 = 1
-        <if test="house_rent_min != null">
-            AND house_rent <![CDATA[ >= ]]> #{house_rent_min}::bigint
+    <select id="getDetailsByCondition" resultMap="ClusterWithHousesMap">
+        WITH rounded_house AS (
+        SELECT
+        ROUND(coordinates[0]::numeric, #{precision}) AS lng,
+        ROUND(coordinates[1]::numeric, #{precision}) AS lat,
+        #{precision} AS precision,
+        house_deposit,
+        house_rent,
+        property_type,
+        gender_type,
+        contract_start_date,
+        contract_end_date
+        FROM house_detail
+        WHERE 1 = 1
+
+        <!-- 지도 영역 필터 -->
+        <if test="minX != null and maxX != null and minX != 0.0 and maxX != 0.0">
+            AND coordinates[0] BETWEEN #{minX} AND #{maxX}
+            AND coordinates[1] BETWEEN #{minY} AND #{maxY}
         </if>
-        <if test="house_rent_max != null">
-            AND house_rent <![CDATA[ <= ]]> #{house_rent_max}::bigint
+
+        <!-- 보증금 -->
+        <if test="depositRange != null and depositRange.size == 2">
+            AND house_deposit BETWEEN #{depositRange[0]} AND #{depositRange[1]}
         </if>
-        <if test="property_type != null and property_type.size > 0">
-           AND property_type in
-            <foreach item="prop" collection="property_type" open="(" separator="," close=")">
-                ${prop}
+
+        <!-- 월세 -->
+        <if test="monthlyRentRange != null and monthlyRentRange.size == 2">
+            AND house_rent BETWEEN #{monthlyRentRange[0]} AND #{monthlyRentRange[1]}
+        </if>
+
+        <!-- 공간유형 -->
+        <if test="spaceType != null and spaceType.size() > 0">
+            AND space_type IN
+            <foreach item="type" collection="spaceType" open="(" separator="," close=")">
+                #{type}
             </foreach>
         </if>
-        <if test="house_deposit_min != null">
-            AND house_deposit <![CDATA[ >= ]]> #{house_deposit_min}::bigint
+
+        <!-- 성별 -->
+        <if test="genderType != null and genderType != ''">
+            AND gender_type =  #{genderType}
         </if>
-        <if test="house_deposit_max != null">
-            AND house_deposit <![CDATA[ <= ]]> #{house_deposit_max}::bigint
+
+        <!-- 입주 시작일 이후 -->
+        <if test="shareStartDate != null">
+            AND share_start_date &gt;= #{shareStartDate}
         </if>
-        <if test="share_start_date != null">
-           AND share_start_date <![CDATA[ >= ]]> CAST(#{share_start_date} AS DATE)
+
+        <!-- 입주 종료일 이전 -->
+        <if test="shareEndDate != null">
+            AND share_end_date &lt;= #{shareEndDate}
         </if>
-        <if test="share_end_date != null">
-           AND share_end_date <![CDATA[ <= ]]> CAST(#{share_end_date} AS DATE)
-        </if>
-        <if test="house_features != null and house_features.size > 0">
-           AND house_features <![CDATA[ && ]]> ARRAY[
-            <foreach item="feat" collection="house_features" separator=",">
-                ${feat}
-            </foreach>
-           ]::varchar[]
-        </if>
+
+<!--        &lt;!&ndash; 계약기간 &ndash;&gt;-->
+<!--        <if test="contractPeriod != null and contractPeriod.minYear != null and contractPeriod.minYear != ''">-->
+<!--            AND EXTRACT(YEAR FROM contract_start_date) &gt;= #{contractPeriod.minYear}-->
+<!--        </if>-->
+<!--        <if test="contractPeriod != null and contractPeriod.maxYear != null and contractPeriod.maxYear != ''">-->
+<!--            AND EXTRACT(YEAR FROM contract_end_date) &lt;= #{contractPeriod.maxYear}-->
+<!--        </if>-->
+<!--        )-->
+    )
+        SELECT
+        lng,
+        lat,
+        precision,
+        COUNT(*) AS count
+        FROM rounded_house
+        GROUP BY lng, lat, precision
+        ORDER BY count DESC
+    </select>
+
+    <select id="getMainClusterWithHouses" parameterType="int" resultType="stay.with.me.api.model.dto.ClusterWithHousesDto">
+        SELECT
+            lng,
+            lat,
+            #{precision} AS precision,
+        COUNT(*) AS count
+        FROM (
+            SELECT
+            ROUND(coordinates[0]::numeric, #{precision}) AS lng,
+            ROUND(coordinates[1]::numeric, #{precision}) AS lat
+            FROM house_detail
+            ) AS rounded
+        GROUP BY lng, lat, precision
+        ORDER BY count DESC
+    </select>
+
+
+    <select id="getClusterWithHouses" resultMap="ClusterWithHousesMap">
+        SELECT
+            lng,
+            lat,
+            #{precision} AS precision,
+        COUNT(*) AS count
+        FROM (
+            SELECT
+            ROUND(coordinates[0]::numeric, #{precision}) AS lng,
+            ROUND(coordinates[1]::numeric, #{precision}) AS lat
+            FROM house_detail
+            ) AS rounded
+        GROUP BY lng, lat, precision
+        ORDER BY count DESC
     </select>
 
     <update id="updateDetail" useGeneratedKeys="true" keyProperty="houseDetailId">
@@ -211,44 +291,8 @@
     </delete>
 
 
-    <select id="getMainClusterWithHouses" resultMap="ClusterWithHousesMap">
-        SELECT
-            ROUND(coordinates[0]::numeric, 3) AS lng,
-            ROUND(coordinates[1]::numeric, 3) AS lat,
-            COUNT(*) AS count
-        FROM house_detail
-        GROUP BY ROUND(coordinates[0]::numeric, 3), ROUND(coordinates[1]::numeric, 3)
-        ORDER BY count DESC
-            LIMIT 1
-    </select>
 
 
-    <select id="getClusterWithHouses" resultMap="ClusterWithHousesMap">
-        SELECT
-            ROUND(coordinates[0]::numeric, 3) AS lng,
-            ROUND(coordinates[1]::numeric, 3) AS lat,
-            COUNT(*) AS count
-        FROM house_detail
-        WHERE
-            coordinates[0] BETWEEN #{minX} AND #{maxX}
-          AND coordinates[1] BETWEEN #{minY} AND #{maxY}
-        GROUP BY
-            ROUND(coordinates[0]::numeric, 3),
-            ROUND(coordinates[1]::numeric, 3)
-    </select>
-
-
-
-    <select id="getHousesByRoundedLocation" resultMap="houseDetailResultMap">
-        SELECT
-            hd.*,
-            hf.house_file_path
-        FROM house_detail hd
-                 LEFT JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
-        WHERE
-            ROUND(hd.coordinates[0]::numeric, 3) = #{lng}
-          AND ROUND(hd.coordinates[1]::numeric, 3) = #{lat}
-    </select>
 
     <select id="getHousesByUserId">
         SELECT hd.*,
@@ -265,9 +309,21 @@
              JOIN house_bookmark hb ON hb.house_detail_id = hd.house_detail_id
              JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
     WHERE hb.user_id =  #{userId}
-      AND hb.is_deleted = false;
+    ;
 
 </select>
+
+    <insert id="plusBookMark" parameterType="map">
+        INSERT INTO house_bookmark (user_id, house_detail_id, liked_at)
+        VALUES (#{userId}, #{houseDetailId}, NOW())
+    </insert>
+
+    <delete id="minusBookMart" parameterType="int">
+        DELETE FROM house_bookmark
+        WHERE user_id = #{userId}
+          AND house_detail_id = #{houseDetailId}
+    </delete>
+
 
 <select id="getRecentView">
     SELECT hd.*,

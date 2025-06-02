@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="stay.with.me.api.model.mapper.BoardMapper">
+    <resultMap id="BoardMap" type="stay.with.me.api.model.dto.BoardDTO">
+        <id property="postId" column="post_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="userId" column="user_id"/>
+        <result property="nickname" column="nickname"/>
+        <result property="views" column="views"/>
+        <result property="status" column="status"/>
+        <result property="fileType" column="file_type"/>
+        <result property="boardType" column="board_type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="commentCount" column="commentCount"  />
+        <result property="likeCount"    column="likeCount"     />
+        <result property="viewCount"    column="viewCount"     />
+    </resultMap>
+    <select id="findAll" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT  b.post_id,
+                b.title,
+                b.content,
+                b.board_type,
+                u.nickname,
+                bf.board_file_path AS thumbnail,
+                COUNT(DISTINCT c.comment_id)  AS commentCount,
+                COUNT(DISTINCT d.like_id)      AS likeCount,
+                COUNT(DISTINCT e.user_id)      AS viewCount
+        FROM board b
+                 LEFT JOIN comment            c  ON b.post_id = c.post_id
+                 LEFT JOIN board_like         d  ON b.post_id = d.post_id
+                 LEFT JOIN board_view_history e  ON b.post_id = e.post_id
+                 LEFT JOIN users              u  ON b.user_id = u.user_id
+                 LEFT JOIN board_file         bf ON b.post_id = bf.board_post_id
+            AND bf.file_type = 'thumbnail'
+        WHERE
+            b.board_type = #{category}::board_category
+    AND b.status     = 1
+        GROUP BY
+            b.post_id, b.title, b.content, b.board_type,
+            u.nickname, bf.board_file_path
+        ORDER BY b.post_id DESC
+    </select>
+
+<!--    <select id="findByCategory" parameterType="string" resultMap="BoardMap">-->
+<!--        SELECT * FROM board WHERE = #{category}::board_category;-->
+<!--    </select>-->
+
+    <!-- 정보게시판 글 + 통계 조회 -->
+    <select id="findByCategory" parameterType="map" resultMap="BoardMap">
+        SELECT
+            b.post_id,
+            b.title,
+            b.content,
+            b.board_type,
+            u.nickname,
+            bf.board_file_path AS thumbnail,
+            COUNT(DISTINCT c.comment_id)  AS commentCount,
+            COUNT(DISTINCT d.like_id)      AS likeCount,
+            COUNT(DISTINCT e.user_id)      AS viewCount,
+            BOOL_OR(d.user_id = #{userId}) AS liked
+        FROM board b
+                 LEFT JOIN comment            c  ON b.post_id = c.post_id
+                 LEFT JOIN board_like         d  ON b.post_id = d.post_id
+                 LEFT JOIN board_view_history e  ON b.post_id = e.post_id
+                 LEFT JOIN users              u  ON b.user_id = u.user_id
+                 LEFT JOIN board_file         bf ON b.post_id = bf.board_post_id
+            AND bf.file_type = 'thumbnail'
+        WHERE
+            b.board_type = #{category}::board_category
+    AND b.status     = 1
+        GROUP BY
+            b.post_id, b.title, b.content, b.board_type,
+            u.nickname, bf.board_file_path
+        ORDER BY b.post_id DESC
+    </select>
+
+    <select id="findById" parameterType="long" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT
+            b.post_id,
+            b.title,
+            b.content,
+            u.nickname,
+            c.user_id,
+            b.created_at,
+            b.updated_at,
+            COUNT(DISTINCT c.comment_id) AS commentCount,
+            COUNT(DISTINCT d.like_id)     AS likeCount,
+            COUNT(DISTINCT e.user_id)     AS viewCount
+        FROM board b
+                 LEFT JOIN comment               c ON b.post_id = c.post_id
+                 LEFT JOIN board_like            d ON b.post_id = d.post_id
+                 LEFT JOIN board_view_history    e ON b.post_id = e.post_id
+                 LEFT JOIN users                 u ON c.user_id = u.user_id
+        WHERE b.post_id = #{postId}
+          AND b.status = 1
+        GROUP BY b.post_id, b.title, b.content, u.nickname , c.created_at, c.updated_at, c.user_id
+        ORDER BY b.post_id DESC
+
+    </select>
+
+    <insert id="insert" parameterType="stay.with.me.api.model.dto.BoardDTO"  useGeneratedKeys="true" keyProperty="postId" keyColumn="post_id">
+    INSERT INTO board (user_id, board_type, title, content, created_at, updated_at, status)
+        VALUES (#{userId}, #{boardType}::board_category, #{title}, #{content}, NOW(), NOW(), 1)
+    </insert>
+
+    <insert id="createFile" parameterType="stay.with.me.api.model.dto.BoardFileDto">
+        INSERT INTO board_file
+        (
+            board_post_id,
+            board_file_name,
+            board_file_path,
+            board_file_width,
+            board_file_height,
+            board_file_extension,
+            created_by,
+            created_at,
+            file_type
+        )
+        values
+        (
+            #{boardPostId},
+            #{boardFileName},
+            #{boardFilePath},
+            #{boardFileWidth},
+            #{boardFileHeight},
+            #{boardFileExtension},
+            #{createdBy},
+            CURRENT_TIMESTAMP,
+            #{fileType}
+        )
+    </insert>
+
+    <update id="update" parameterType="stay.with.me.api.model.dto.BoardDTO">
+        UPDATE board
+        SET title = #{title}, content = #{content}, updated_at = NOW()
+        WHERE post_id = #{postId}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM board WHERE post_id = #{id}
+    </delete>
+
+
+    <select id="getBoardsByUserId" parameterType="long" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT * FROM board
+        WHERE user_id = #{userId}
+          AND b.status = 1
+    </select>
+
+    <update id="insetView" parameterType="map">
+        INSERT IGNORE INTO board_view_history
+        ( post_id, user_id)
+        values
+         ( #{postId}, , #{userId}, NOW() )
+    </update>
+
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO board_like
+        ( post_id, user_id, created_at)
+        values
+        ( #{postId}, #{userId}, NOW() )
+    </insert>
+
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM board_like WHERE post_id = #{postId} AND user_id = #{userId}
+    </delete>
+
+    <select id="getMyBoardUpload" parameterType="long" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT
+            b.post_id,
+            b.title,
+            b.content,
+            b.board_type,
+            u.nickname,
+            bf.board_file_path AS thumbnail,
+            COUNT(DISTINCT c.comment_id)  AS commentCount,
+            COUNT(DISTINCT d.like_id)      AS likeCount,
+            COUNT(DISTINCT e.user_id)      AS viewCount,
+            BOOL_OR(d.user_id = #{userId}) AS liked
+        FROM board b
+                 LEFT JOIN comment            c  ON b.post_id = c.post_id
+                 LEFT JOIN board_like         d  ON b.post_id = d.post_id
+                 LEFT JOIN board_view_history e  ON b.post_id = e.post_id
+                 LEFT JOIN users              u  ON b.user_id = u.user_id
+                 LEFT JOIN board_file         bf ON b.post_id = bf.board_post_id
+            AND bf.file_type = 'thumbnail'
+        WHERE
+            b.user_id = #{userId}
+          AND b.status     = 1
+        GROUP BY
+            b.post_id, b.title, b.content, b.board_type,
+            u.nickname, bf.board_file_path
+        ORDER BY b.post_id DESC
+    </select>
+
+    <select id="getMyLikedBoard" parameterType="long" resultType="stay.with.me.api.model.dto.BoardDTO">
+        SELECT
+            b.post_id,
+            b.title,
+            b.content,
+            b.board_type,
+            u.nickname,
+            bf.board_file_path AS thumbnail,
+            COUNT(DISTINCT c.comment_id)  AS commentCount,
+            COUNT(DISTINCT d.like_id)      AS likeCount,
+            COUNT(DISTINCT e.user_id)      AS viewCount,
+            BOOL_OR(d.user_id = #{userId}) AS liked
+        FROM board b
+                 LEFT JOIN comment            c  ON b.post_id = c.post_id
+                 LEFT JOIN board_like         d  ON b.post_id = d.post_id
+                 LEFT JOIN board_view_history e  ON b.post_id = e.post_id
+                 LEFT JOIN users              u  ON b.user_id = u.user_id
+                 LEFT JOIN board_file         bf ON b.post_id = bf.board_post_id
+            AND bf.file_type = 'thumbnail'
+        WHERE
+            d.user_id = #{userId}
+            AND b.status     = 1
+        GROUP BY
+            b.post_id, b.title, b.content, b.board_type,
+            u.nickname, bf.board_file_path
+        ORDER BY b.post_id DESC
+    </select>
+
+</mapper>

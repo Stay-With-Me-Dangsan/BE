@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import stay.with.me.api.model.dto.ClusterWithHousesDto;
-import stay.with.me.api.model.dto.HouseDetailDto;
-import stay.with.me.api.model.dto.HouseMainDto;
-import stay.with.me.api.model.dto.ResponseDto;
+import stay.with.me.api.model.dto.*;
 import stay.with.me.api.service.HouseService;
 import stay.with.me.common.util.ResponseUtil;
 import stay.with.me.common.ResponseStatus;
@@ -67,16 +64,51 @@ public class HouseController {
         }
     }
 
-    @GetMapping("/getDetailsByCondition")
-    public ResponseEntity<ResponseDto> getDetailsByCondition(@RequestParam Map<String, Object> param) {
+    @GetMapping("/main/clustered")
+    public ResponseEntity<ResponseDto> getMainClusteredHouses() throws Exception {
         try {
-            List<Integer> list = houseService.getDetailsByCondition(param);
+            List<ClusterWithHousesDto> list = houseService.getMainClusteredHouses();
 
             if(list.size() < 1) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
             }
             Map<String, Object> data = Map.of("result", list);
+            System.out.println("메인지도: " +data);
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+    @GetMapping("/clustered")
+    public ResponseEntity<ResponseDto> getClusteredHouses(@RequestParam("minX") double minX, @RequestParam("minY") double  minY, @RequestParam("maxX") double  maxX, @RequestParam("maxY") double  maxY, @RequestParam("precision") int precision) throws Exception {
+        try {
+            List<ClusterWithHousesDto> list = houseService.getClusteredHouses(minX, minY, maxX, maxY, precision);
+
+            if(list.size() < 1) {
+                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
+            }
+            Map<String, Object> data = Map.of("result", list);
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+        } catch(Exception e) {
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PostMapping("/postDetailsByCondition")
+    public ResponseEntity<ResponseDto> getDetailsByCondition(@RequestBody HouseFilterDto param) {
+        try {
+
+            List<ClusterWithHousesDto> list = houseService.getDetailsByCondition(param);
+
+            Map<String, Object> data = Map.of("result", list);
+            if (list.isEmpty()) {
+                return ResponseUtil.buildResponse( ResponseStatus.SUCCESS.getCode(),"해당 조건에 맞는 결과가 없습니다.",data,HttpStatus.OK);}
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+
         } catch(Exception e) {
             return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -137,36 +169,8 @@ public class HouseController {
         }
     }
 
-    @GetMapping("/Main/clustered")
-    public ResponseEntity<ResponseDto> getMainClusteredHouses() throws Exception {
-        try {
-        List<ClusterWithHousesDto> list = houseService.getMainClusteredHouses();
 
-        if(list.size() < 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
-        }
-            Map<String, Object> data = Map.of("result", list);
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
-        } catch(Exception e) {
-            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
 
-    }
-    @GetMapping("/clustered")
-    public ResponseEntity<ResponseDto> getClusteredHouses(@RequestParam("minX") double minX, @RequestParam("minY") double  minY, @RequestParam("maxX") double  maxX, @RequestParam("maxY") double  maxY) throws Exception {
-        try {
-            List<ClusterWithHousesDto> list = houseService.getClusteredHouses(minX, minY, maxX, maxY);
-
-            if(list.size() < 1) {
-                return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
-            }
-            Map<String, Object> data = Map.of("result", list);
-            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
-        } catch(Exception e) {
-            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
 
 }
 
