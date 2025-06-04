@@ -68,13 +68,13 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
+			
+			.cors(Customizer.withDefaults()) //수정 250604
 				.csrf(AbstractHttpConfigurer::disable)
 				.httpBasic(AbstractHttpConfigurer::disable)
-				//.formLogin(AbstractHttpConfigurer::disable) // 비동기 요청을 받기 위해, 기본 방식인 동기 요청 작업 비활성화
-				//.cors(cors -> cors.configurationSource(corsConfigurationSource()))// CORS 에러 방지용
 				.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// 세션을 사용하지 않기 때문(jwt사용)에 STATELESS로 설정
-				//페이지 접근제한설정
+				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				
 				.authorizeHttpRequests(
 						registry -> registry.requestMatchers("/**")
 								.permitAll()
@@ -83,7 +83,12 @@ public class SecurityConfig {
 				);
 		http.addFilterBefore(corsFilter(), CorsFilter.class)
 
-				/*oauth2 설정*/
+				
+				//cors 관련 추가
+				// .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
+				//JWT 토큰 예외처리
+				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+			/*oauth2 설정*/
 				.oauth2Login(oauth2 -> oauth2
 						.authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))// 로그인 요청 기본 경로
 						.redirectionEndpoint(redirection -> redirection.baseUri("/login/oauth2/code/*"))// 리다이렉션 엔드포인트 설정
@@ -91,10 +96,6 @@ public class SecurityConfig {
 						.successHandler(oAuth2LoginSuccessHandler) //OAuth2 로그인 성공 시 JWT 발급
 						.failureHandler(oAuth2LoginFailureHandler) // OAuth2 로그인 실패 핸들러
 				)
-				//cors 관련 추가
-				.addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
-				//JWT 토큰 예외처리
-				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint(jwtAuthenticationEntryPoint) //401 에러 핸들링을 위한 설정
 						.accessDeniedHandler(jwtAccessDeniedHandler) // 403 에러 핸들링을 위한 설정
@@ -114,14 +115,30 @@ public class SecurityConfig {
 		));
 
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		  // withCredentials: true 요청 허용
 		configuration.setAllowCredentials(true);
+		 // 요청 헤더
+		        configuration.setAllowedHeaders(List.of(
+		            "Authorization",
+		            "Content-Type",
+		            "X-Requested-With",
+		            "Accept",
+		            "Origin",
+		            "Access-Control-Request-Method",
+		            "Access-Control-Request-Headers"
+		        ));
 
-		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
-
+		// 응답 노출 헤더
+		        configuration.setExposedHeaders(List.of(
+		            "Authorization",
+		            "Content-Type"
+		        ));
+		
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
+	
 	@Bean
 	public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
 		return new HttpSessionOAuth2AuthorizationRequestRepository();
@@ -133,10 +150,10 @@ public class SecurityConfig {
 				.addResourceLocations("classpath:/static/");
 	}
 
-	//cors 관련 추가
-	@Bean
-	public CorsFilter corsFilter() {
-		return new CorsFilter(corsConfigurationSource());
-	}
+	// //cors 관련 추가
+	// @Bean
+	// public CorsFilter corsFilter() {
+	// 	return new CorsFilter(corsConfigurationSource());
+	// }
 
 }
