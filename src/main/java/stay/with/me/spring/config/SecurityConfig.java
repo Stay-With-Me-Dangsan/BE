@@ -75,14 +75,12 @@ public class SecurityConfig {
 				.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 				.sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				
-				.authorizeHttpRequests(
-						registry -> registry.requestMatchers("/**")
-								.permitAll()
-								.anyRequest()
-								.authenticated()
-				);
-		http.addFilterBefore(corsFilter(), CorsFilter.class)
-
+				  .authorizeHttpRequests(auth ->
+				                // ─── 로그인·회원가입(예: /api/user/signIn 등)은 허용하고, 그 외는 인증 필요 ───
+				                auth.requestMatchers("/api/user/signIn", "/api/user/signUp").permitAll()
+				                    .anyRequest().authenticated()
+				            )
+		
 				
 				//cors 관련 추가
 				// .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
