@@ -8,7 +8,7 @@ public interface HouseService {
 
     HouseMainDto getMain(int houseMainId) throws Exception;
 
-    HouseDetailDto getDetail(int houseDetailId) throws Exception;
+    HouseDetailDto getDetail(int houseDetailId, Long userId) throws Exception;
 
     List<HouseDetailDto> getDetails(double  minX, double  minY, double  maxX, double  maxY) throws Exception;
 
@@ -32,10 +32,9 @@ public interface HouseService {
 
     List<HouseDetailDto> getMarkedHouse(Long userId)throws Exception;
 
-    int plusBookMart(Long userId, int houseDetailId);
-
-    int minusBookMart(Long userId, int houseDetailId);
-
     List<HouseDetailDto> getRecentView(Long userId) throws Exception;
 
+    int insertLike(Long userId, int houseDetailId) throws Exception;
+
+    int deleteLike(Long userId, int houseDetailId) throws Exception;
 }

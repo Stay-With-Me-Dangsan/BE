@@ -8,6 +8,7 @@ import java.util.List;
 public class CommentDTO {
     private Long postId;
     private Long userId;
+    private Long commentId;
     private String nickname;
     private String boardType;
     private String title;

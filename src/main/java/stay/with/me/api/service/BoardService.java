@@ -29,4 +29,6 @@ public interface BoardService {
     int deleteLike(Long postId, Long userId) throws Exception;
 
     List<BoardDTO> getMyLikedBoard(Long userId) throws Exception;
+
+    int insetView(Long postId, Long userId, String sessionId, String ip, String ua) throws Exception;
 }

@@ -23,8 +23,8 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public HouseDetailDto getDetail(int houseDetailId) throws Exception {
-        return houseMapper.getDetail(houseDetailId);
+    public HouseDetailDto getDetail(int houseDetailId, Long userId) throws Exception {
+        return houseMapper.getDetail(houseDetailId, userId);
     }
 
     @Override
@@ -84,20 +84,21 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public int plusBookMart(Long userId, int houseDetailId) {
-        return houseMapper.plusBookMart(userId, houseDetailId);
+    public int insertLike(Long userId, int houseDetailId) throws Exception {
+        return houseMapper.insertLike(userId, houseDetailId);
     }
 
     @Override
-    public int minusBookMart(Long userId, int houseDetailId) {
-        return houseMapper.minusBookMart(userId, houseDetailId);
+    public int deleteLike(Long userId, int houseDetailId) throws Exception {
+        return houseMapper.deleteLike(userId, houseDetailId);
     }
-
-
 
     @Override
     public List<HouseDetailDto> getRecentView(Long userId) throws Exception {
         return houseMapper.getRecentView(userId);
     }
+
+
+
 
 }

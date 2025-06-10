@@ -8,7 +8,7 @@ public interface CommentService {
     List<CommentDTO> getCommentsByPostId(Long postId);
     int createComment(CommentDTO commentDTO, Long userId);
     int updateComment(CommentDTO commentDTO, Long userId);
-    int deleteComment(Long postId, Long userId);
+    int deleteComment(Long commentId, Long userId);
 
     List<CommentDTO> getMyCommentsBoard(Long userId);
 }

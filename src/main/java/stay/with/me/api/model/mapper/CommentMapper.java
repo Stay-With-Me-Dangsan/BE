@@ -10,7 +10,7 @@ public interface CommentMapper {
     List<CommentDTO> findAllByPostId(Long postId);
     int insert(CommentDTO commentDTO,Long userId);
     int update(CommentDTO commentDTO,Long userId);
-    int delete(Long postId,Long userId);
+    int delete(Long commentId,Long userId);
 
     List<CommentDTO> getMyCommentsBoard(Long userId);
 }

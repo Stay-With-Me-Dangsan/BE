@@ -13,7 +13,7 @@ public interface HouseMapper {
 
     HouseMainDto getMain(int houseMainId);
 
-    HouseDetailDto getDetail(int houseDetailId);
+    HouseDetailDto getDetail(int houseDetailId, Long userId);
 
     List<HouseDetailDto> getDetails(double  minX, double  minY, double  maxX, double  maxY);
 
@@ -40,7 +40,7 @@ public interface HouseMapper {
 
     List<HouseDetailDto> getHousesByUserId(Long userId);
 
-    int plusBookMart(Long userId, int houseDetailId);
+    int insertLike(Long userId, int houseDetailId) throws Exception;
 
-    int minusBookMart(Long userId, int houseDetailId);
+    int deleteLike(Long userId, int houseDetailId) throws Exception;
 }

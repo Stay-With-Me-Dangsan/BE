@@ -8,7 +8,7 @@ import stay.with.me.api.service.LikeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/likes")
 public class LikeController {
 
     @Autowired

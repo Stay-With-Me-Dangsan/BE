@@ -1,5 +1,6 @@
 package stay.with.me.api.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import stay.with.me.api.model.dto.CommonCodeDto;
 import stay.with.me.api.model.dto.ResponseDto;
+import stay.with.me.api.model.dto.UpdateViewRequestDto;
 import stay.with.me.api.service.BoardService;
 import stay.with.me.api.model.dto.BoardDTO;
 import stay.with.me.common.ResponseStatus;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/boards")
+@RequestMapping("/boards")
 public class BoardController {
 
     @Autowired
@@ -95,14 +97,22 @@ public class BoardController {
     }
 
     @PostMapping("/update/view")
-    public ResponseEntity<ResponseDto> updateView(@RequestBody Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ResponseDto> updateView(
+            @RequestBody Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest request) {
         try {
 
             //            Long userId = userDetails.getUserId();
             Long userId = (userDetails != null) ? userDetails.getUserId() : null;
 
+            String sessionId = request.getSession().getId();
+            String ip       = request.getRemoteAddr();
+            String ua       = request.getHeader("User-Agent");
 
-            int insertedRow = boardService.insetView(postId, userId);
+            int insertedRow = boardService.insetView( postId, userId, sessionId, ip, ua);
+
+
 
             Map<String, Object> data = Map.of("result", insertedRow);
 

@@ -19,6 +19,8 @@
         <result property="coordinates" column="coordinates" typeHandler="stay.with.me.spring.mybatis.PGPointTypeHandler" />
         <result property="createdBy" column="created_by" />
         <result property="houseFilePath" column="house_file_path"/>
+        <result property="elevator" column="elevator" />
+        <result property="parking" column="parking" />
     </resultMap>
     <resultMap id="ClusterWithHousesMap" type="stay.with.me.api.model.dto.ClusterWithHousesDto">
         <result property="lat" column="lat" />
@@ -48,11 +50,70 @@
         WHERE house_main_id = #{houseMainId}
     </select>
 
-    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">
-        SELECT *
-        FROM house_detail
-        WHERE house_detail_id = #{houseDetailId}
+    <select id="getDetail" parameterType="map" resultMap="houseDetailResultMap">
+        SELECT hd.house_main_id,
+               hd.house_detail_address,
+               hd.house_description,
+               hd.house_phone,
+               hd.house_keyword,
+               hd.house_features,
+               hd.property_type,
+               hd.house_deposit,
+               hd.house_rent,
+               hd.share_start_date,
+               hd.share_end_date,
+               hd.created_by,
+               hd.created_at,
+               hd.elevator,
+               hd.parking,
+        <!-- userId가 null이면 항상 false, 그렇지 않으면 hl.user_id = #{userId} 중 하나라도 있으면 true -->
+        <choose>
+            <when test="userId == null">
+                FALSE AS liked
+            </when>
+            <otherwise>
+                BOOL_OR( hl.user_id = #{userId} ) AS liked
+            </otherwise>
+        </choose>
+        FROM house_detail hd
+        <!-- LEFT JOIN 시점에 이미 userId를 함께 필터링 -->
+        <if test="userId != null">
+            LEFT JOIN house_like hl
+            ON hd.house_detail_id = hl.house_detail_id
+            AND hl.user_id = #{userId}
+        </if>
+        <if test="userId == null">
+            LEFT JOIN house_like hl
+            ON hd.house_detail_id = hl.house_detail_id
+            <!-- userId가 null이면 hl.user_id 절 생략 -->
+        </if>
+        WHERE
+            hd.house_detail_id = #{houseDetailId}
+
+        group by  hd.house_main_id,
+                  hd.house_detail_address,
+                  hd.house_description,
+                  hd.house_phone,
+                  hd.house_keyword,
+                  hd.house_features,
+                  hd.property_type,
+                  hd.house_deposit,
+                  hd.house_rent,
+                  hd.share_start_date,
+                  hd.share_end_date,
+                  hd.created_by,
+                  hd.created_at,
+                  hd.elevator,
+                  hd.parking
     </select>
+<!--    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">-->
+<!--        SELECT hd.*,-->
+<!--               BOOL_OR(hl.user_id = #{userId}) AS liked-->
+<!--        FROM house_detail hd-->
+<!--             LEFT JOIN house_like hl ON hd.house_detail_id = hl.house_detail_id-->
+<!--         WHERE-->
+<!--               hd.house_detail_id = #{houseDetailId}-->
+<!--    </select>-->
 
     <select id="getDetails" parameterType="double" resultMap="houseDetailResultMap">
         SELECT *
@@ -239,7 +300,9 @@
         share_end_date,
         coordinates,
         created_by,
-        created_at
+        created_at,
+        elevator,
+        parking
         )
         VALUES
         (
@@ -256,7 +319,9 @@
         #{shareEndDate}::date,
         #{coordinates, typeHandler=stay.with.me.spring.mybatis.PGPointTypeHandler},
         #{createdBy},
-        CURRENT_TIMESTAMP
+        CURRENT_TIMESTAMP,
+         #{elevator},
+         #{parking}
         )
     </insert>
 
@@ -306,20 +371,20 @@
     SELECT hd.*,
            hf.house_file_path
     FROM house_detail hd
-             JOIN house_bookmark hb ON hb.house_detail_id = hd.house_detail_id
+             JOIN house_like hl ON hl.house_detail_id = hd.house_detail_id
              JOIN house_file hf ON hd.house_detail_id = hf.house_detail_id
-    WHERE hb.user_id =  #{userId}
+    WHERE hl.user_id =  #{userId}
     ;
 
 </select>
 
-    <insert id="plusBookMark" parameterType="map">
-        INSERT INTO house_bookmark (user_id, house_detail_id, liked_at)
+    <insert id="insertLike" parameterType="map">
+        INSERT INTO house_like (user_id, house_detail_id, liked_at)
         VALUES (#{userId}, #{houseDetailId}, NOW())
     </insert>
 
-    <delete id="minusBookMart" parameterType="int">
-        DELETE FROM house_bookmark
+    <delete id="deleteLike" parameterType="map">
+        DELETE FROM house_like
         WHERE user_id = #{userId}
           AND house_detail_id = #{houseDetailId}
     </delete>

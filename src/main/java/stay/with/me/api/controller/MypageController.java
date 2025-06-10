@@ -27,7 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/mypage")
+@RequestMapping("/mypage")
 public class MypageController {
 
     private final UserService userService;
@@ -79,38 +79,38 @@ public class MypageController {
 
     }
 
-
-    // 게시판 좋아요 추가
-    @PostMapping("/board/bookmark/{houseDetailId}")
-    public ResponseEntity<ResponseDto> bookmarkHouse(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
-
-        Long userId = userDetails.getUserId();
-
-        int createdRow = houseService.plusBookMart(userId, houseDetailId);
-
-        if (createdRow != 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 실패", null, HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "찜하기 성공", null, HttpStatus.OK);
-
-    }
-
-    // 게시판 좋아요 취소
-    @DeleteMapping("/board/like/cancle/{boardDetailId}")
-    public ResponseEntity<ResponseDto> cancelLike(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
-
-        Long userId = userDetails.getUserId();
-
-        int createdRow = houseService.minusBookMart(userId, houseDetailId);
-
-        if (createdRow != 1) {
-            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 취소 실패", null, HttpStatus.BAD_REQUEST);
-        }
-
-        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "찜하기 취소 성공", null, HttpStatus.OK);
-
-    }
+//
+//    // 게시판 좋아요 추가
+//    @PostMapping("/board/bookmark/{houseDetailId}")
+//    public ResponseEntity<ResponseDto> bookmarkHouse(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
+//
+//        Long userId = userDetails.getUserId();
+//
+//        int createdRow = houseService.insertLike(userId, houseDetailId);
+//
+//        if (createdRow != 1) {
+//            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 실패", null, HttpStatus.BAD_REQUEST);
+//        }
+//
+//        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "찜하기 성공", null, HttpStatus.OK);
+//
+//    }
+//
+//    // 게시판 좋아요 취소
+//    @DeleteMapping("/board/like/cancle/{boardDetailId}")
+//    public ResponseEntity<ResponseDto> cancelLike(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
+//
+//        Long userId = userDetails.getUserId();
+//
+//        int createdRow = houseService.deleteLike(userId, houseDetailId);
+//
+//        if (createdRow != 1) {
+//            return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 취소 실패", null, HttpStatus.BAD_REQUEST);
+//        }
+//
+//        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), "찜하기 취소 성공", null, HttpStatus.OK);
+//
+//    }
 
 // 내가 작성한 댓글
     @GetMapping("/board/comments")
@@ -200,11 +200,11 @@ public class MypageController {
 
 // 하우스 좋아요 추가
     @PostMapping("/house/bookmark/{houseDetailId}")
-    public ResponseEntity<ResponseDto> houseBookmarkHouse(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
+    public ResponseEntity<ResponseDto> houseBookmarkHouse(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) throws Exception {
 
         Long userId = userDetails.getUserId();
 
-        int createdRow = houseService.plusBookMart(userId, houseDetailId);
+        int createdRow = houseService.insertLike(userId, houseDetailId);
 
         if (createdRow != 1) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 실패", null, HttpStatus.BAD_REQUEST);
@@ -216,11 +216,11 @@ public class MypageController {
 
     // 찜 취소
     @DeleteMapping("/house/bookmark/cancle/{houseDetailId}")
-    public ResponseEntity<ResponseDto> houseBookmarkCancle(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) {
+    public ResponseEntity<ResponseDto> houseBookmarkCancle(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable int houseDetailId) throws Exception {
 
         Long userId = userDetails.getUserId();
 
-        int createdRow = houseService.minusBookMart(userId, houseDetailId);
+        int createdRow = houseService.deleteLike(userId, houseDetailId);
 
         if (createdRow != 1) {
             return ResponseUtil.buildResponse(ResponseStatus.BAD_REQUEST.getCode(), "찜하기 취소 실패", null, HttpStatus.BAD_REQUEST);

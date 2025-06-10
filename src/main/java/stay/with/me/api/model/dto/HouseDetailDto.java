@@ -33,4 +33,8 @@ public class HouseDetailDto {
     private BigDecimal maintenance;
     private int management;
     private String houseFilePath;
+    private String elevator;
+    private String parking;
+    private Boolean liked;
+    private String createdAt;
 }

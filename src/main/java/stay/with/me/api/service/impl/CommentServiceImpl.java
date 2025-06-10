@@ -30,8 +30,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public int deleteComment(Long postId, Long userId) {
-        return commentMapper.delete(postId,userId);
+    public int deleteComment(Long commentId, Long userId) {
+        return commentMapper.delete(commentId,userId);
     }
 
 

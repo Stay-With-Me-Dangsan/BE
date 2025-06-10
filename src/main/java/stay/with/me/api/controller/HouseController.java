@@ -3,17 +3,19 @@ package stay.with.me.api.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import stay.with.me.api.model.dto.*;
 import stay.with.me.api.service.HouseService;
 import stay.with.me.common.util.ResponseUtil;
 import stay.with.me.common.ResponseStatus;
+import stay.with.me.spring.jwt.CustomUserDetails;
 
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
-@RequestMapping("/api/house")
+@RequestMapping("/house")
 @RequiredArgsConstructor
 public class HouseController {
 
@@ -34,10 +36,14 @@ public class HouseController {
         }
     }
 
-    @GetMapping("/getDetail")
-    public ResponseEntity<ResponseDto> getDetail(@RequestParam("houseDetailId") int houseDetailId) {
+    @GetMapping("/getDetail/{houseDetailId}")
+    public ResponseEntity<ResponseDto> getDetail(@PathVariable("houseDetailId") int houseDetailId,
+                                                 @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
-            HouseDetailDto dto = houseService.getDetail(houseDetailId);
+
+            Long userId = (userDetails != null) ? userDetails.getUserId() : null;
+
+            HouseDetailDto dto = houseService.getDetail(houseDetailId, userId);
 
             if(dto == null) {
                 return ResponseUtil.buildResponse(ResponseStatus.NOT_FOUND.getCode(), ResponseStatus.NOT_FOUND.getMessage(), null, HttpStatus.NOT_FOUND);
@@ -172,6 +178,42 @@ public class HouseController {
 
 
 
+@PostMapping("/insert/like")
+public ResponseEntity<ResponseDto> insertLike(@RequestBody int houseDetailId,
+                                              @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+    try {
+
+
+        Long userId = userDetails.getUserId();
+        int updatedRow = houseService.insertLike(userId, houseDetailId);
+
+        Map<String, Object> data = Map.of("result", updatedRow);
+
+        return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+
+    } catch(Exception e) {
+        e.printStackTrace();
+        return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
 
+    @DeleteMapping("/delete/like")
+    public ResponseEntity<ResponseDto> deleteLike(@RequestParam(required = false) int houseDetailId,
+                                                  @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        try {
 
+            Long userId = userDetails.getUserId();
+
+            int updatedRow = houseService.deleteLike(userId, houseDetailId);
+            Map<String, Object> data = Map.of("result", updatedRow);
+
+            return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseUtil.buildResponse(ResponseStatus.INTERNAL_ERROR.getCode(), ResponseStatus.INTERNAL_ERROR.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+}

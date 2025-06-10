@@ -5,6 +5,7 @@
 <mapper namespace="stay.with.me.api.model.mapper.CommentMapper">
     <resultMap id="CommentMap" type="stay.with.me.api.model.dto.CommentDTO">
         <id property="postId" column="post_id"/>
+        <id property="commentId" column="comment_id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
         <result property="userId" column="user_id"/>
@@ -20,6 +21,8 @@
                 u.nickname,
                 c.user_id,
                 board_file_path,
+                c.comment_id,
+                c.updated_at,
                 COUNT(DISTINCT c.comment_id)  AS commentCount,
                 COUNT(DISTINCT d.like_id)      AS likeCount,
                 COUNT(DISTINCT e.user_id)      AS viewCount
@@ -27,25 +30,25 @@
                  LEFT JOIN comment            c  ON b.post_id = c.post_id
                  LEFT JOIN board_like         d  ON b.post_id = d.post_id
                  LEFT JOIN board_view_history e  ON b.post_id = e.post_id
-                 LEFT JOIN users              u  ON b.user_id = u.user_id
+                 LEFT JOIN users              u  ON c.user_id = u.user_id
                  LEFT JOIN board_file         bf ON b.post_id = bf.board_post_id
         WHERE c.post_id = #{postId}
         GROUP BY
             b.post_id, c.content, b.board_type,
-            u.nickname,c.user_id, bf.board_file_path
-        ORDER BY b.post_id desc
+            u.nickname,c.user_id, bf.board_file_path,comment_id, c.updated_at
+        ORDER BY c.updated_at desc
     </select>
 
     <select id="findById" parameterType="long" resultType="stay.with.me.api.model.dto.CommentDTO">
-        SELECT * FROM comment WHERE comment_id = #{id}
+        SELECT * FROM comment WHERE comment_id = #{commentId}
     </select>
 
     <insert id="insert" parameterType="map">
         INSERT INTO comment (post_id, user_id, content, created_at, updated_at)
-        VALUES (#{postId}, #{userId}, #{content}, NOW(), NOW())
+        VALUES (#{commentDTO.postId}, #{userId}, #{commentDTO.content}, NOW(), NOW())
     </insert>
 
-    <update id="update" parameterType="map">
+    <update id="update" parameterType="stay.with.me.api.model.dto.CommentDTO" >
         UPDATE comment
         SET
             content    = #{content},

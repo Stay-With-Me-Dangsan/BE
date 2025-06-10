@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/comments")
 public class CommentController {
 
     @Autowired
@@ -28,8 +28,6 @@ public class CommentController {
     public ResponseEntity<ResponseDto> getCommentsByPostId(@PathVariable Long postId) {
 
         try {
-
-
 
             List<CommentDTO> commentList = commentService.getCommentsByPostId(postId);
 
@@ -51,7 +49,6 @@ public class CommentController {
         try {
 
             Long userId = userDetails.getUserId();
-
             int createdRow = commentService.createComment(commentDTO, userId);
 
             Map<String, Object> data = Map.of("result", createdRow);
@@ -83,12 +80,12 @@ public class CommentController {
     }
 
     // 댓글 삭제
-    @DeleteMapping("/delete/{postId}")
-    public ResponseEntity<ResponseDto> deleteComment(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @DeleteMapping("/delete/{commentId}")
+    public ResponseEntity<ResponseDto> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
 
             Long userId = userDetails.getUserId();
-            int deletedRow = commentService.deleteComment(postId, userId);
+            int deletedRow = commentService.deleteComment(commentId, userId);
             Map<String, Object> data = Map.of("result", deletedRow);
 
             return ResponseUtil.buildResponse(ResponseStatus.SUCCESS.getCode(), ResponseStatus.SUCCESS.getMessage(), data, HttpStatus.OK);

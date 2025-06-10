@@ -81,26 +81,32 @@
 
     <select id="findById" parameterType="long" resultType="stay.with.me.api.model.dto.BoardDTO">
         SELECT
-            b.post_id,
-            b.title,
-            b.content,
-            u.nickname,
-            c.user_id,
-            b.created_at,
-            b.updated_at,
-            COUNT(DISTINCT c.comment_id) AS commentCount,
-            COUNT(DISTINCT d.like_id)     AS likeCount,
-            COUNT(DISTINCT e.user_id)     AS viewCount
+        b.post_id,
+        b.title,
+        b.content,
+        u.nickname,
+        b.created_at,
+        b.updated_at,
+        COUNT(DISTINCT c.comment_id) AS commentCount,
+        COUNT(DISTINCT d.like_id)    AS likeCount,
+        COUNT(DISTINCT e.user_id)    AS viewCount,
+        <choose>
+            <when test="userId == null">
+                FALSE AS liked
+            </when>
+            <otherwise>
+                BOOL_OR(d.user_id = #{userId}) AS liked
+            </otherwise>
+        </choose>
         FROM board b
-                 LEFT JOIN comment               c ON b.post_id = c.post_id
-                 LEFT JOIN board_like            d ON b.post_id = d.post_id
-                 LEFT JOIN board_view_history    e ON b.post_id = e.post_id
-                 LEFT JOIN users                 u ON c.user_id = u.user_id
+        LEFT JOIN comment c ON b.post_id = c.post_id
+        LEFT JOIN board_like d ON b.post_id = d.post_id
+        LEFT JOIN board_view_history e ON b.post_id = e.post_id
+        LEFT JOIN users u ON b.user_id = u.user_id
         WHERE b.post_id = #{postId}
-          AND b.status = 1
-        GROUP BY b.post_id, b.title, b.content, u.nickname , c.created_at, c.updated_at, c.user_id
+        AND b.status = 1
+        GROUP BY b.post_id, b.title, b.content, u.nickname, b.created_at, b.updated_at
         ORDER BY b.post_id DESC
-
     </select>
 
     <insert id="insert" parameterType="stay.with.me.api.model.dto.BoardDTO"  useGeneratedKeys="true" keyProperty="postId" keyColumn="post_id">
@@ -152,12 +158,15 @@
           AND b.status = 1
     </select>
 
-    <update id="insetView" parameterType="map">
-        INSERT IGNORE INTO board_view_history
-        ( post_id, user_id)
+    <insert id="insetView" parameterType="map">
+        INSERT INTO board_view_history
+        ( post_id, user_id, session_id, ip_address, user_agent, created_at)
         values
-         ( #{postId}, , #{userId}, NOW() )
-    </update>
+         ( #{postId}, #{userId},  #{sessionId},
+           #{ip},
+           #{ua},
+           NOW())
+    </insert>
 
     <insert id="insertLike" parameterType="map">
         INSERT INTO board_like
@@ -225,5 +234,7 @@
             u.nickname, bf.board_file_path
         ORDER BY b.post_id DESC
     </select>
+
+
 
 </mapper>

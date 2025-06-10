@@ -27,4 +27,5 @@ public interface BoardMapper {
 
     List<BoardDTO> getMyLikedBoard(Long userId);
 
+    int insetView(Long postId, Long userId, String sessionId, String ip, String ua);
 }

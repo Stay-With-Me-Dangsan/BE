@@ -77,4 +77,9 @@ public class BoardServiceImpl implements BoardService {
     public List<BoardDTO> getMyLikedBoard(Long userId) throws Exception {
         return boardMapper.getMyLikedBoard(userId);
     }
+
+    @Override
+    public int insetView(Long postId, Long userId, String sessionId, String ip, String ua) throws Exception {
+        return  boardMapper.insetView(postId, userId, sessionId, ip, ua);
+    }
 }
