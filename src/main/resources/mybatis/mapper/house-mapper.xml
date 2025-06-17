@@ -21,6 +21,8 @@
         <result property="houseFilePath" column="house_file_path"/>
         <result property="elevator" column="elevator" />
         <result property="parking" column="parking" />
+        <result property="maintenance" column="maintenance" />
+        <result property="floor" column="floor" />
     </resultMap>
     <resultMap id="ClusterWithHousesMap" type="stay.with.me.api.model.dto.ClusterWithHousesDto">
         <result property="lat" column="lat" />
@@ -66,6 +68,8 @@
                hd.created_at,
                hd.elevator,
                hd.parking,
+               hd.maintenance,
+               hd.floor,
         <!-- userId가 null이면 항상 false, 그렇지 않으면 hl.user_id = #{userId} 중 하나라도 있으면 true -->
         <choose>
             <when test="userId == null">
@@ -104,7 +108,9 @@
                   hd.created_by,
                   hd.created_at,
                   hd.elevator,
-                  hd.parking
+                  hd.parking,
+                  hd.maintenance,
+                  hd.floor
     </select>
 <!--    <select id="getDetail" parameterType="int" resultMap="houseDetailResultMap">-->
 <!--        SELECT hd.*,-->
