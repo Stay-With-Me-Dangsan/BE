@@ -132,6 +132,7 @@ public class JwtTokenProvider implements InitializingBean {
         cookie.setSecure(true);    // ✅ HTTPS에서만 전송
         cookie.setPath("/");       // ✅ 모든 경로에서 사용 가능
         cookie.setMaxAge(7 * 24 * 60 * 60); // ✅ 7일 동안 유지
+        cookie.setDomain("staywithme.kr"); 
         return cookie;
     }
 
