@@ -110,6 +110,7 @@ public class SecurityConfig {
 
 		configuration.setAllowedOrigins(List.of(
 				"http://localhost:3000",
+				"https://www.staywithme.kr",
 				"https://www.staywithme.kr"
 		));
 
